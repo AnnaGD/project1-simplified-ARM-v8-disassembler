@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"flag"
 	"fmt"
 	"math"
 	"os"
@@ -193,18 +194,37 @@ func getInstructionFormat(content string) {
 
 func main() {
 
-	var Path = "src/temp/data.txt"
+	//flags for input/output
+	inputPath := flag.String("i", "", "The path to input file")
+	outputPath := flag.String("o", "", "The path to output file")
+	flag.Parse()
+
+	if *inputPath == "" {
+		fmt.Println("Please be sure to enter both an -i and -o for path to input/output file")
+		flag.PrintDefaults()
+		os.Exit(1)
+	}
+
+	if *outputPath == "" {
+		fmt.Println("Please also enter -o for path to output file")
+		flag.PrintDefaults()
+		os.Exit(1)
+	}
+
+	//var Path = "src/temp/data.txt"
 	//create a file and check for errors
-	File, err := os.Create("team1_out_dis.txt")
+	File, err := os.Create(*inputPath)
+	defer File.Close()
 
 	if err != nil {
 		fmt.Println(err)
-		//close the file
-		File.Close()
-		return
+		os.Exit(1)
 	}
+
+	//fmt.Println("Input is: ", *inputPath)
+	//fmt.Println("Output is: ", *outputPath)
 	//createFile(Path)
 	//writeFile(Path *os.File)
 	//closeFile(Path *os.File)
-	getInstructionFormat(Path)
+	//getInstructionFormat(Path)
 }
