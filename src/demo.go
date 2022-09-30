@@ -6,8 +6,10 @@ import (
 	"math"
 	"os"
 	"strconv"
+	//"log"//possible need
 )
 
+// helper will streamline error checks below
 func errorOpeningFile(e error) {
 	if e != nil {
 		panic(e)
@@ -43,7 +45,8 @@ func getInstructionFormat(content string) {
 	var Answer = ""
 	var jar = ""
 	var Holder = ""
-	var Counter = 96
+	var Counter = 96 //memory location starting point
+	//should increment by 4 bytes for each instruction
 	ValidInstructions := map[int]string{
 		1104: "AND",
 		1112: "ADD",
@@ -57,6 +60,7 @@ func getInstructionFormat(content string) {
 
 	fileScanner := bufio.NewScanner(data)
 	fileScanner.Split(bufio.ScanLines)
+	var result = ""
 	for fileScanner.Scan() {
 
 		Tester = fileScanner.Text()
@@ -79,7 +83,10 @@ func getInstructionFormat(content string) {
 
 		if opcode >= 160 && opcode <= 191 {
 			jar = string(jar[5] + ' ')
-			fmt.Println("B format - ", jar)
+			s := fmt.Sprintf("B format - %s", jar)
+			////fmt.Println("B format - ", jar)
+			//fmt.Println("Write to file")
+			//os.WriteFile("src/temp/team1_out_dis.txt", []byte(s), 0666)
 			Holder = ""
 			jar = ""
 		}
@@ -115,23 +122,59 @@ func getInstructionFormat(content string) {
 			register2 = binaryToDecimal(register2)
 			register3 = binaryToDecimal(register3)
 
-			fmt.Println(jar[0:11]+" "+jar[12:16]+" "+jar[17:22]+" "+jar[23:27]+" "+jar[28:32], Counter, Answer, register1, register2, register3)
+			//s := fmt.Sprintf("B format - %s",
+			//fmt.Println(jar[0:11]+" "+jar[12:16]+" "+jar[17:22]+" "+jar[23:27]+" "+jar[28:32], Counter, Answer, register1, register2, register3)
+			s := fmt.Sprintf("%s %s %s %s %s %d %s %d %d %d", jar[0:11], jar[12:16], jar[17:22], jar[23:27], jar[28:32], Counter, Answer, register1, register2, register3)
+			//os.WriteFile("src/temp/team1_out_dis.txt", []byte(s), 0666)
+			result += s
+			result += "\n"
 			Holder = ""
 			jar = ""
 		}
 		Counter += 4
 	}
+	os.WriteFile("src/temp/team1_out_dis.txt", []byte(result), 0666)
 }
+
+//var Path = "src/temp/data.txt"
+//
+//func createFile(Path string) *os.File {
+//	fmt.Println("creating")
+//	f, err := os.Create(Path)
+//	if err != nil {
+//		panic(err)
+//	}
+//	return f
+//}
+//
+//func writeFile(Path *os.File) {
+//	fmt.Println("writing")
+//	fmt.Fprintln(Path, "data")
+//}
+//
+//func closeFile(Path *os.File) {
+//	fmt.Println("closing")
+//	err := Path.Close()
+//
+//	if err != nil {
+//		fmt.Fprintf(os.Stderr, "error: %v\n", err)
+//		os.Exit(1)
+//	}
+//}
 
 func main() {
 	var Path = "src/temp/data.txt"
+	//create a file and check for errors
 	File, err := os.Create("team1_out_dis.txt")
 
 	if err != nil {
 		fmt.Println(err)
+		//close the file
 		File.Close()
 		return
 	}
-
+	//createFile(Path)
+	//writeFile(Path *os.File)
+	//closeFile(Path *os.File)
 	getInstructionFormat(Path)
 }
