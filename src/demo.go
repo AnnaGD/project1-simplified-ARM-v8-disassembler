@@ -60,6 +60,8 @@ func getInstructionFormat(content string) {
 
 	fileScanner := bufio.NewScanner(data)
 	fileScanner.Split(bufio.ScanLines)
+	//to keep track of the result of each loop in the scan
+	//result is what gets written to the file after the loop is complete
 	var result = ""
 	for fileScanner.Scan() {
 
@@ -83,30 +85,56 @@ func getInstructionFormat(content string) {
 
 		if opcode >= 160 && opcode <= 191 {
 			jar = string(jar[5] + ' ')
+			//printing directly to file, function takes %s "string" and &d digit value
 			s := fmt.Sprintf("B format - %s", jar)
-			////fmt.Println("B format - ", jar)
-			//fmt.Println("Write to file")
-			//os.WriteFile("src/temp/team1_out_dis.txt", []byte(s), 0666)
+
+			//adding new string and linebreak
+			result += s
+			result += "\n"
 			Holder = ""
 			jar = ""
 		}
 		if opcode >= 1440 && opcode <= 1447 || opcode >= 1448 && opcode <= 1455 {
-			fmt.Println("CB format - ", jar)
+			//fmt.Println("CB format - ", jar)
+			//printing directly to file function takes %s "string" and &d digit value
+			s := fmt.Sprintf("CB format - %s", jar)
+
+			//adding new string and linebreak
+			result += s
+			result += "\n"
 			Holder = ""
 			jar = ""
 		}
 		if opcode >= 1684 && opcode <= 1687 || opcode >= 1940 && opcode <= 1943 {
-			fmt.Println("IM format - ", jar)
+			//fmt.Println("IM format - ", jar)
+			//printing directly to file function takes %s "string" and &d digit value
+			s := fmt.Sprintf("IM format - %s", jar)
+
+			//adding new string and linebreak
+			result += s
+			result += "\n"
 			Holder = ""
 			jar = ""
 		}
 		if opcode >= 1160 && opcode <= 1161 || opcode >= 1672 && opcode <= 1673 {
-			fmt.Println("I format - ", jar)
+			//fmt.Println("I format - ", jar)
+			//printing directly to file function takes %s "string" and &d digit value
+			s := fmt.Sprintf("I format - %s", jar)
+
+			//adding new string and linebreak
+			result += s
+			result += "\n"
 			Holder = ""
 			jar = ""
 		}
 		if opcode == 1986 || opcode == 1984 {
-			fmt.Println("D format - ", jar)
+			//fmt.Println("D format - ", jar)
+			//printing directly to file function takes %s "string" and &d digit value
+			s := fmt.Sprintf("D format - %s", jar)
+
+			//adding new string and linebreak
+			result += s
+			result += "\n"
 			Holder = ""
 			jar = ""
 		}
@@ -122,10 +150,10 @@ func getInstructionFormat(content string) {
 			register2 = binaryToDecimal(register2)
 			register3 = binaryToDecimal(register3)
 
-			//s := fmt.Sprintf("B format - %s",
-			//fmt.Println(jar[0:11]+" "+jar[12:16]+" "+jar[17:22]+" "+jar[23:27]+" "+jar[28:32], Counter, Answer, register1, register2, register3)
+			//printing directly to file function takes %s "string" and &d digit value
 			s := fmt.Sprintf("%s %s %s %s %s %d %s %d %d %d", jar[0:11], jar[12:16], jar[17:22], jar[23:27], jar[28:32], Counter, Answer, register1, register2, register3)
-			//os.WriteFile("src/temp/team1_out_dis.txt", []byte(s), 0666)
+
+			//adding new string and linebreak
 			result += s
 			result += "\n"
 			Holder = ""
@@ -133,6 +161,7 @@ func getInstructionFormat(content string) {
 		}
 		Counter += 4
 	}
+	//once loop is complete everything is written to the file at once
 	os.WriteFile("src/temp/team1_out_dis.txt", []byte(result), 0666)
 }
 
@@ -163,6 +192,7 @@ func getInstructionFormat(content string) {
 //}
 
 func main() {
+
 	var Path = "src/temp/data.txt"
 	//create a file and check for errors
 	File, err := os.Create("team1_out_dis.txt")
