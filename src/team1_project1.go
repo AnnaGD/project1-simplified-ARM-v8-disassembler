@@ -39,7 +39,7 @@ func checkForValue(val int, instructions map[int]string) string {
 	return "cannot find valid instruction"
 }
 
-func getInstructionFormat(content string) {
+func getInstructionFormat(content string) string {
 	data, error := os.Open(content)
 	errorOpeningFile(error)
 	var Tester = ""
@@ -62,7 +62,7 @@ func getInstructionFormat(content string) {
 	fileScanner := bufio.NewScanner(data)
 	fileScanner.Split(bufio.ScanLines)
 	//to keep track of the result of each loop in the scan
-	//result is what gets written to the file after the loop is complete
+	//result is what gets returned
 	var result = ""
 	for fileScanner.Scan() {
 
@@ -96,7 +96,7 @@ func getInstructionFormat(content string) {
 			jar = ""
 		}
 		if opcode >= 1440 && opcode <= 1447 || opcode >= 1448 && opcode <= 1455 {
-			//fmt.Println("CB format - ", jar)
+			//TODO: set jar
 			//printing directly to file function takes %s "string" and &d digit value
 			s := fmt.Sprintf("CB format - %s", jar)
 
@@ -107,7 +107,7 @@ func getInstructionFormat(content string) {
 			jar = ""
 		}
 		if opcode >= 1684 && opcode <= 1687 || opcode >= 1940 && opcode <= 1943 {
-			//fmt.Println("IM format - ", jar)
+			//TODO: set jar
 			//printing directly to file function takes %s "string" and &d digit value
 			s := fmt.Sprintf("IM format - %s", jar)
 
@@ -118,7 +118,7 @@ func getInstructionFormat(content string) {
 			jar = ""
 		}
 		if opcode >= 1160 && opcode <= 1161 || opcode >= 1672 && opcode <= 1673 {
-			//fmt.Println("I format - ", jar)
+			//TODO: set jar
 			//printing directly to file function takes %s "string" and &d digit value
 			s := fmt.Sprintf("I format - %s", jar)
 
@@ -129,7 +129,7 @@ func getInstructionFormat(content string) {
 			jar = ""
 		}
 		if opcode == 1986 || opcode == 1984 {
-			//fmt.Println("D format - ", jar)
+			//TODO: set jar
 			//printing directly to file function takes %s "string" and &d digit value
 			s := fmt.Sprintf("D format - %s", jar)
 
@@ -162,35 +162,8 @@ func getInstructionFormat(content string) {
 		}
 		Counter += 4
 	}
-	//once loop is complete everything is written to the file at once
-	os.WriteFile("src/temp/team1_out_dis.txt", []byte(result), 0666)
+	return result
 }
-
-//var Path = "src/temp/data.txt"
-//
-//func createFile(Path string) *os.File {
-//	fmt.Println("creating")
-//	f, err := os.Create(Path)
-//	if err != nil {
-//		panic(err)
-//	}
-//	return f
-//}
-//
-//func writeFile(Path *os.File) {
-//	fmt.Println("writing")
-//	fmt.Fprintln(Path, "data")
-//}
-//
-//func closeFile(Path *os.File) {
-//	fmt.Println("closing")
-//	err := Path.Close()
-//
-//	if err != nil {
-//		fmt.Fprintf(os.Stderr, "error: %v\n", err)
-//		os.Exit(1)
-//	}
-//}
 
 func main() {
 
@@ -211,20 +184,19 @@ func main() {
 		os.Exit(1)
 	}
 
-	//var Path = "src/temp/data.txt"
+	//TODO: Use os.Create to read/write rather than saving everything in memory and dumping it in os.WriteFile
 	//create a file and check for errors
-	File, err := os.Create(*inputPath)
-	defer File.Close()
+	//File, err := os.Create(*outputPath)
+	//defer File.Close()
 
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
+	//if err != nil {
+	//	fmt.Println(err)
+	//	os.Exit(1)
+	//}
 
-	//fmt.Println("Input is: ", *inputPath)
-	//fmt.Println("Output is: ", *outputPath)
-	//createFile(Path)
-	//writeFile(Path *os.File)
-	//closeFile(Path *os.File)
-	//getInstructionFormat(Path)
+	instructionFormat := getInstructionFormat(*inputPath)
+	fmt.Println("InputPath: ", *inputPath)
+	os.WriteFile(*outputPath, []byte(instructionFormat), 0666)
+	os.Exit(0)
+
 }
