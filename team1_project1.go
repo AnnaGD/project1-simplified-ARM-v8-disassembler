@@ -10,10 +10,27 @@ import (
 	//"log"//possible need
 )
 
+type Instruction struct {
+	//values/data to be read from the file
+	typeofInstruction string
+	rawInstruction    string
+	lineValue         uint64
+	programCnt        int
+	opcode            uint64
+	op                string
+	rd                uint8
+	rn                uint8
+	rm                uint8
+	im                string
+}
+
+//Opening func to create the Instruction struct
+
 // helper will streamline error checks below
-func errorOpeningFile(e error) {
-	if e != nil {
-		panic(e)
+func errorOpeningFile(err error) {
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
 	}
 }
 
@@ -202,6 +219,37 @@ func getInstructionFormat(content string) string {
 	return result
 }
 
+// Open the file
+// Read each line of the file
+// Convert the line to a struct
+func convertInstructionStringtoStruct(file string) []Instruction {
+	//Open the file
+	data, error := os.Open(file)
+	//data.
+	errorOpeningFile(error)
+	//Scan each line of the file
+	fileScanner := bufio.NewScanner(data)
+	fileScanner.Split(bufio.ScanLines)
+
+	var result []Instruction
+	var lineCount = uint64(0)
+	for fileScanner.Scan() {
+		var line = fileScanner.Text()
+		var instruction = NewInstruction(line, lineCount)
+		result = append(result, *instruction)
+		lineCount++
+	}
+	fmt.Println(result)
+	return result
+}
+
+func NewInstruction(data string, lineValue uint64) *Instruction {
+
+	instr := Instruction{rawInstruction: data}
+	return &instr
+
+}
+
 func main() {
 
 	//flags for input/output
@@ -226,14 +274,13 @@ func main() {
 	//File, err := os.Create(*outputPath)
 	//defer File.Close()
 
-	//if err != nil {
-	//	fmt.Println(err)
-	//	os.Exit(1)
-	//}
+	//instructionFormat := getInstructionFormat(*inputPath)
+	//fmt.Println("InputPath: ", *inputPath)
+	//os.WriteFile(*outputPath, []byte(instructionFormat), 0666)
+	//os.Exit(0)
 
-	instructionFormat := getInstructionFormat(*inputPath)
-	fmt.Println("InputPath: ", *inputPath)
-	os.WriteFile(*outputPath, []byte(instructionFormat), 0666)
-	os.Exit(0)
-
+	//Loop through each line in the input file
+	//and make an instruction struct
+	//var instructionStructArr =
+	convertInstructionStringtoStruct(*inputPath)
 }
