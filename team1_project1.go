@@ -252,6 +252,7 @@ func NewInstruction(data string, lineValue uint64) *Instruction {
 	return &instr
 }
 
+//Converting 11 bits to opcode(uint64)
 func getOpcode(data string) uint64 {
 
 	bits, error := strconv.Atoi(data)
@@ -293,14 +294,15 @@ func main() {
 	//Loop through each line in the input file
 	//and make an instruction struct
 	var instructionStructSlice = convertInstructionStringToStruct(*inputPath)
-	// using for loop
-	//for index, element := range arr {
-	//	fmt.Println("At index", index, "value is", element)
-	//}
 
 	for index, element := range instructionStructSlice {
-		//put into the appropriate field of each struct
-		element.opcode = getOpcode(element.rawInstruction[0:10])
+		//1st eleven bits of the structs rawIntruction
+		op := element.rawInstruction[0:10]
+		//Store the op binary - 1st 11 bits
+		element.op = op
+		//Set the converted opCode string -> uint64
+		element.opcode = getOpcode(op)
+
 		fmt.Println("At index", index, "struct: ", element)
 	}
 }
