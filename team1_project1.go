@@ -34,7 +34,7 @@ func errorOpeningFile(err error) {
 	}
 }
 
-func binaryToDecimal(binaryNum int) int {
+func binaryToDecimal(binaryNum int) uint64 {
 	var rem int
 	index := 0
 	DecimalNum := 0
@@ -44,7 +44,7 @@ func binaryToDecimal(binaryNum int) int {
 		DecimalNum = DecimalNum + rem*int(math.Pow(2, float64(index)))
 		index++
 	}
-	return DecimalNum
+	return uint64(DecimalNum)
 }
 
 func checkForValue(val int, instructions map[int]string) string {
@@ -97,7 +97,7 @@ func getInstructionFormat(content string) string {
 			if len(Holder) == 11 {
 				Container = string(Holder)
 				opcode, _ = strconv.Atoi(Container)
-				opcode = binaryToDecimal(opcode)
+				//opcode = binaryToDecimal(opcode)
 			}
 		}
 		//B format
@@ -138,7 +138,7 @@ func getInstructionFormat(content string) string {
 			Answer = (checkForValue(opcode, ValidInstructions))
 			register1, _ := strconv.Atoi(jar[28:32])
 
-			register1 = binaryToDecimal(register1)
+			//register1 = binaryToDecimal(register1)
 
 			s := fmt.Sprintf("IM format - ", jar[0:11]+" "+jar[12:16]+" "+jar[17:22]+" "+jar[23:27]+" "+jar[28:32], Counter, Answer, register1)
 
@@ -157,8 +157,8 @@ func getInstructionFormat(content string) string {
 			register1, _ := strconv.Atoi(jar[23:27])
 			register2, _ := strconv.Atoi(jar[28:32])
 
-			register1 = binaryToDecimal(register1)
-			register2 = binaryToDecimal(register2)
+			//register1 = binaryToDecimal(register1)
+			//register2 = binaryToDecimal(register2)
 
 			s := fmt.Sprintf("I format - ", jar[0:11]+" "+jar[12:16]+" "+jar[17:22]+" "+jar[23:27]+" "+jar[28:32], Counter, Answer, register1, register2)
 
@@ -176,9 +176,9 @@ func getInstructionFormat(content string) string {
 			Answer = (checkForValue(opcode, ValidInstructions))
 			register1, _ := strconv.Atoi(jar[23:27])
 			register2, _ := strconv.Atoi(jar[28:32])
-
-			register1 = binaryToDecimal(register1)
-			register2 = binaryToDecimal(register2)
+			//
+			//register1 = binaryToDecimal(register1)
+			//register2 = binaryToDecimal(register2)
 
 			s := fmt.Sprintf("D format - ", jar[0:11]+" "+jar[12:16]+" "+jar[17:22]+" "+jar[23:27]+" "+jar[28:32], Counter, Answer, register1, register2)
 
@@ -199,9 +199,9 @@ func getInstructionFormat(content string) string {
 			register2, _ := strconv.Atoi(jar[12:16])
 			register3, _ := strconv.Atoi(jar[28:32])
 
-			register1 = binaryToDecimal(register1)
-			register2 = binaryToDecimal(register2)
-			register3 = binaryToDecimal(register3)
+			//register1 = binaryToDecimal(register1)
+			//register2 = binaryToDecimal(register2)
+			//register3 = binaryToDecimal(register3)
 
 			//printing directly to file function takes %s "string" and &d digit value
 			s := fmt.Sprintf("%s %s %s %s %s %d %s %d %d %d", jar[0:11], jar[12:16], jar[17:22], jar[23:27], jar[28:32], Counter, Answer, register1, register2, register3)
@@ -222,10 +222,10 @@ func getInstructionFormat(content string) string {
 // Open the file
 // Read each line of the file
 // Convert the line to a struct
-func convertInstructionStringtoStruct(file string) []Instruction {
+func convertInstructionStringToStruct(file string) []Instruction {
 	//Open the file
 	data, error := os.Open(file)
-	//data.
+	//check for errors
 	errorOpeningFile(error)
 	//Scan each line of the file
 	fileScanner := bufio.NewScanner(data)
@@ -245,8 +245,19 @@ func convertInstructionStringtoStruct(file string) []Instruction {
 
 func NewInstruction(data string, lineValue uint64) *Instruction {
 
-	instr := Instruction{rawInstruction: data}
+	instr := Instruction{
+		rawInstruction: data,
+		lineValue:      lineValue,
+	}
 	return &instr
+}
+
+func getOpcode(data string) uint64 {
+
+	bits, error := strconv.Atoi(data)
+	//check for errors
+	errorOpeningFile(error)
+	return binaryToDecimal(bits)
 
 }
 
@@ -281,6 +292,15 @@ func main() {
 
 	//Loop through each line in the input file
 	//and make an instruction struct
-	//var instructionStructArr =
-	convertInstructionStringtoStruct(*inputPath)
+	var instructionStructSlice = convertInstructionStringToStruct(*inputPath)
+	// using for loop
+	//for index, element := range arr {
+	//	fmt.Println("At index", index, "value is", element)
+	//}
+
+	for index, element := range instructionStructSlice {
+		//put into the appropriate field of each struct
+		element.opcode = getOpcode(element.rawInstruction[0:10])
+		fmt.Println("At index", index, "struct: ", element)
+	}
 }
