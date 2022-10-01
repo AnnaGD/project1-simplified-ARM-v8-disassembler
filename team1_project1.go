@@ -252,7 +252,7 @@ func NewInstruction(data string, lineValue uint64) *Instruction {
 	return &instr
 }
 
-//Converting 11 bits to opcode(uint64)
+// Converting 11 bits to opcode(uint64)
 func getOpcode(data string) uint64 {
 
 	bits, error := strconv.Atoi(data)
@@ -260,6 +260,20 @@ func getOpcode(data string) uint64 {
 	errorOpeningFile(error)
 	return binaryToDecimal(bits)
 
+}
+
+func getTypeOfInstruction(opcode uint64) string {
+	ValidInstructions := map[uint64]string{
+		1104: "AND",
+		1112: "ADD",
+		1360: "ORR",
+		1624: "SUB",
+		1690: "LSR",
+		1691: "LSL",
+		1692: "ASR",
+		1872: "EOR",
+	}
+	return ValidInstructions[opcode]
 }
 
 func main() {
@@ -296,12 +310,13 @@ func main() {
 	var instructionStructSlice = convertInstructionStringToStruct(*inputPath)
 
 	for index, element := range instructionStructSlice {
-		//1st eleven bits of the structs rawIntruction
-		op := element.rawInstruction[0:10]
+		//1st eleven bits of the structs rawInstruction
+		op := element.rawInstruction[0:11]
 		//Store the op binary - 1st 11 bits
 		element.op = op
 		//Set the converted opCode string -> uint64
 		element.opcode = getOpcode(op)
+		element.typeofInstruction = getTypeOfInstruction(element.opcode)
 
 		fmt.Println("At index", index, "struct: ", element)
 	}
