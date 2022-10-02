@@ -232,14 +232,26 @@ func convertInstructionStringToStruct(file string) []Instruction {
 
 	var result []Instruction
 	var count = 96
-	for fileScanner.Scan() {
-		var line = fileScanner.Text()
-		var instruction = NewInstruction(line, count)
-		result = append(result, *instruction)
-		count += 4
+	if (BreakFlag == false) {
+		for fileScanner.Scan() {
+			var line = fileScanner.Text()
+			var instruction = NewInstruction(line, count)
+			result = append(result, *instruction)
+			count += 4
+		}
+		fmt.Println(result)
+		return result
 	}
-	fmt.Println(result)
-	return result
+	//catch to scan file and convert and print the last data after break as 2 compliment ints
+	if (BreakFlag == true) {
+		for fileScanner.Scan() {
+			var line = fileScanner.Text()
+			intVar, _ := strconv.Atoi(line)
+			TwosCompDecimal, _ := strconv.ParseInt(string(intVar), 2, 64)
+			fmt.Println(TwosCompDecimal)
+		}
+	}
+	return nil
 }
 
 func NewInstruction(data string, count int) *Instruction {
@@ -368,6 +380,10 @@ func main() {
 		element.op = getOp(element.opcode)
 
 		element.typeofInstruction = getTypeOfInstruction(element.opcode)
+		//check to see if opcode matches the Break range
+		if element.typeofInstruction == "Break" {
+			BreakFlag = true
+		}
 		//TODO use the element.typeofInstructino to
 		//case B:
 		//return the 6 bits of the opcode/raw instructions.
@@ -377,3 +393,5 @@ func main() {
 	//TODO delete file at teh start of main
 	writeToFile(*outputPath, instructionStructSlice)
 }
+
+var BreakFlag bool = false
