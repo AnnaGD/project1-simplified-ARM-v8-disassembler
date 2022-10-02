@@ -232,22 +232,22 @@ func convertInstructionStringToStruct(file string) []Instruction {
 	fileScanner.Split(bufio.ScanLines)
 
 	var result []Instruction
-	var lineCount = uint64(0)
 	for fileScanner.Scan() {
 		var line = fileScanner.Text()
-		var instruction = NewInstruction(line, lineCount)
+		var instruction = NewInstruction(line)
 		result = append(result, *instruction)
-		lineCount++
 	}
 	fmt.Println(result)
 	return result
 }
 
-func NewInstruction(data string, lineValue uint64) *Instruction {
+func NewInstruction(data string) *Instruction {
 
+	value, error := strconv.ParseUint(data, 2, 32)
+	errorOpeningFile(error)
 	instr := Instruction{
 		rawInstruction: data,
-		lineValue:      lineValue,
+		lineValue:      value,
 	}
 	return &instr
 }
@@ -263,6 +263,31 @@ func getOpcode(data string) uint64 {
 }
 
 func getTypeOfInstruction(opcode uint64) string {
+
+	var result = ""
+	switch opcode {
+	case 1986, 1984:
+		result = "D"
+	case 1104, 1112, 1360, 1624, 1690, 1691, 1692, 1872:
+		result = "R"
+	default:
+		if opcode >= 160 && opcode <= 191 {
+			result = "B"
+		}
+		if opcode >= 1440 && opcode <= 1447 || opcode >= 1448 && opcode <= 1455 {
+			result = "CB"
+		}
+		if opcode >= 1684 && opcode <= 1687 || opcode >= 1940 && opcode <= 1943 {
+			result = "IM"
+		}
+		if opcode >= 1160 && opcode <= 1161 || opcode >= 1672 && opcode <= 1673 {
+			result = "I"
+		}
+	}
+	return result
+}
+
+func getOp(opcode uint64) string {
 	ValidInstructions := map[uint64]string{
 		1104: "AND",
 		1112: "ADD",
@@ -313,9 +338,10 @@ func main() {
 		//1st eleven bits of the structs rawInstruction
 		op := element.rawInstruction[0:11]
 		//Store the op binary - 1st 11 bits
-		element.op = op
+
 		//Set the converted opCode string -> uint64
 		element.opcode = getOpcode(op)
+		element.op = getOp(element.opcode)
 		element.typeofInstruction = getTypeOfInstruction(element.opcode)
 
 		fmt.Println("At index", index, "struct: ", element)
