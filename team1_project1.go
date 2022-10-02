@@ -7,9 +7,9 @@ import (
 	"math"
 	"os"
 	"strconv"
-	//"log"//possible need
 )
 
+// Instruction For project 2
 type Instruction struct {
 	typeofInstruction string
 	rawInstruction    string
@@ -21,9 +21,8 @@ type Instruction struct {
 	rn                uint8
 	rm                uint8
 	im                string
+	rt                uint8
 }
-
-//Opening func to create the Instruction struct
 
 // helper will streamline error checks below
 func errorOpeningFile(err error) {
@@ -33,7 +32,7 @@ func errorOpeningFile(err error) {
 	}
 }
 
-func binaryToDecimal(binaryNum int) uint64 {
+func binaryToDecimal(binaryNum int) int {
 	var rem int
 	index := 0
 	DecimalNum := 0
@@ -43,7 +42,7 @@ func binaryToDecimal(binaryNum int) uint64 {
 		DecimalNum = DecimalNum + rem*int(math.Pow(2, float64(index)))
 		index++
 	}
-	return uint64(DecimalNum)
+	return DecimalNum
 }
 
 func checkForValue(val int, instructions map[int]string) string {
@@ -55,172 +54,166 @@ func checkForValue(val int, instructions map[int]string) string {
 	return "cannot find valid instruction"
 }
 
-//func getInstructionFormat(content string) string {
-//	data, error := os.Open(content)
-//	errorOpeningFile(error)
-//	var Tester = ""
-//	var Answer = ""
-//	var jar = ""
-//	var Holder = ""
-//	var Counter = 96 //memory location starting point
-//	//should increment by 4 bytes for each instruction
-//	ValidInstructions := map[int]string{
-//		1104: "AND",
-//		1112: "ADD",
-//		1360: "ORR",
-//		1624: "SUB",
-//		1690: "LSR",
-//		1691: "LSL",
-//		1692: "ASR",
-//		1872: "EOR",
-//	}
-//
-//	fileScanner := bufio.NewScanner(data)
-//	fileScanner.Split(bufio.ScanLines)
-//	//to keep track of the result of each loop in the scan
-//	//result is what gets returned
-//	var result = ""
-//	for fileScanner.Scan() {
-//
-//		Tester = fileScanner.Text()
-//		chars := []rune(Tester)
-//		Container := string(chars)
-//		opcode, _ := strconv.Atoi(Holder)
-//
-//		for i := 0; i < 32; i++ {
-//			jar += string(chars[i])
-//		}
-//
-//		for i := 0; i <= 11; i++ {
-//			Holder += string(chars[i])
-//			if len(Holder) == 11 {
-//				Container = string(Holder)
-//				opcode, _ = strconv.Atoi(Container)
-//				//opcode = binaryToDecimal(opcode)
-//			}
-//		}
-//		//B format
-//		if opcode >= 160 && opcode <= 191 {
-//			Answer = (checkForValue(opcode, ValidInstructions))
-//			// opcode 6 bits, offset(w) 26 bits
-//			// using 2s compliment 26 bits converted (length 8) = 0001 1010
-//			jar = string(jar[5] + ' ')
-//			//printing directly to file, function takes %s "string" and &d digit value
-//			//s := fmt.Sprintf("B format - %s", jar)
-//			s := fmt.Sprintf("B format - ", jar[0:11]+" "+jar[12:16]+" "+jar[17:22]+" "+jar[23:27]+" "+jar[28:32], Counter, Answer)
-//
-//			//adding new string and linebreak
-//			result += s
-//			result += "\n"
-//			Holder = ""
-//			jar = ""
-//		}
-//		//CB format
-//		if opcode >= 1440 && opcode <= 1447 || opcode >= 1448 && opcode <= 1455 {
-//			Answer = (checkForValue(opcode, ValidInstructions))
-//			// opcode 8 bits, offset(w) 19 bits, conditional 5 bits
-//			jar = string(jar[0] + ' ')
-//			s := fmt.Sprintf("CB format - ", jar[0:11]+" "+jar[12:16]+" "+jar[17:22]+" "+jar[23:27]+" "+jar[28:32], Counter, Answer)
-//
-//			//printing directly to file function takes %s "string" and &d digit value
-//			//s := fmt.Sprintf("CB format - %s", jar)
-//
-//			//adding new string and linebreak
-//			result += s
-//			result += "\n"
-//			Holder = ""
-//			jar = ""
-//		}
-//
-//		//IM format
-//		if opcode >= 1684 && opcode <= 1687 || opcode >= 1940 && opcode <= 1943 {
-//			Answer = (checkForValue(opcode, ValidInstructions))
-//			register1, _ := strconv.Atoi(jar[28:32])
-//
-//			//register1 = binaryToDecimal(register1)
-//
-//			s := fmt.Sprintf("IM format - ", jar[0:11]+" "+jar[12:16]+" "+jar[17:22]+" "+jar[23:27]+" "+jar[28:32], Counter, Answer, register1)
-//
-//			//printing directly to file function takes %s "string" and &d digit value
-//			//s := fmt.Sprintf("IM format - %s", jar)
-//
-//			//adding new string and linebreak
-//			result += s
-//			result += "\n"
-//			Holder = ""
-//			jar = ""
-//		}
-//		//I format response
-//		if opcode >= 1160 && opcode <= 1161 || opcode >= 1672 && opcode <= 1673 {
-//			Answer = (checkForValue(opcode, ValidInstructions))
-//			register1, _ := strconv.Atoi(jar[23:27])
-//			register2, _ := strconv.Atoi(jar[28:32])
-//
-//			//register1 = binaryToDecimal(register1)
-//			//register2 = binaryToDecimal(register2)
-//
-//			s := fmt.Sprintf("I format - ", jar[0:11]+" "+jar[12:16]+" "+jar[17:22]+" "+jar[23:27]+" "+jar[28:32], Counter, Answer, register1, register2)
-//
-//			//printing directly to file function takes %s "string" and &d digit value
-//			//s := fmt.Sprintf("I format - %s", jar)
-//
-//			//adding new string and linebreak
-//			result += s
-//			result += "\n"
-//			Holder = ""
-//			jar = ""
-//		}
-//		//D format response
-//		if opcode == 1986 || opcode == 1984 {
-//			Answer = (checkForValue(opcode, ValidInstructions))
-//			register1, _ := strconv.Atoi(jar[23:27])
-//			register2, _ := strconv.Atoi(jar[28:32])
-//			//
-//			//register1 = binaryToDecimal(register1)
-//			//register2 = binaryToDecimal(register2)
-//
-//			s := fmt.Sprintf("D format - ", jar[0:11]+" "+jar[12:16]+" "+jar[17:22]+" "+jar[23:27]+" "+jar[28:32], Counter, Answer, register1, register2)
-//
-//			//printing directly to file function takes %s "string" and &d digit value
-//			//s := fmt.Sprintf("D format - %s", jar)
-//
-//			//adding new string and linebreak
-//			result += s
-//			result += "\n"
-//			Holder = ""
-//			jar = ""
-//		}
-//		//Rformat response
-//		if opcode == 1104 || opcode == 1112 || opcode == 1360 || opcode == 1624 ||
-//			opcode == 1690 || opcode == 1691 || opcode == 1692 || opcode == 1872 {
-//			Answer = (checkForValue(opcode, ValidInstructions))
-//			register1, _ := strconv.Atoi(jar[23:27])
-//			register2, _ := strconv.Atoi(jar[12:16])
-//			register3, _ := strconv.Atoi(jar[28:32])
-//
-//			//register1 = binaryToDecimal(register1)
-//			//register2 = binaryToDecimal(register2)
-//			//register3 = binaryToDecimal(register3)
-//
-//			//printing directly to file function takes %s "string" and &d digit value
-//			s := fmt.Sprintf("%s %s %s %s %s %d %s %d %d %d", jar[0:11], jar[12:16], jar[17:22], jar[23:27], jar[28:32], Counter, Answer, register1, register2, register3)
-//			//demo.go version needs review
-//			//s := fmt.Sprintf("R format - ", jar[0:11]+" "+jar[12:16]+" "+jar[17:22]+" "+jar[23:27]+" "+jar[28:32], Counter, Answer, register1, register2, register3)
-//
-//			//adding new string and linebreak
-//			result += s
-//			result += "\n"
-//			Holder = ""
-//			jar = ""
-//		}
-//		Counter += 4
-//	}
-//	return result
-//}
+func getInstructionFormat(content string) string {
+	data, error := os.Open(content)
+	errorOpeningFile(error)
+	var Tester = ""
+	var Answer = ""
+	var jar = ""
+	var Holder = ""
+	var Counter = 96
 
-// Open the file
-// Read each line of the file
-// Convert the line to a struct
+	ValidInstructions := map[int]string{
+		1104: "AND",
+		1112: "ADD",
+		1360: "ORR",
+		1624: "SUB",
+		1690: "LSR",
+		1691: "LSL",
+		1692: "ASR",
+		1872: "EOR",
+	}
+
+	fileScanner := bufio.NewScanner(data)
+	fileScanner.Split(bufio.ScanLines)
+	//to keep track of the result of each loop in the scan
+	//result is what gets returned
+	var result = ""
+	for fileScanner.Scan() {
+
+		Tester = fileScanner.Text()
+		chars := []rune(Tester)
+		Container := string(chars)
+		opcode, _ := strconv.Atoi(Holder)
+
+		for i := 0; i < 32; i++ {
+			jar += string(chars[i])
+		}
+
+		for i := 0; i <= 11; i++ {
+			Holder += string(chars[i])
+			if len(Holder) == 11 {
+				Container = string(Holder)
+				opcode, _ = strconv.Atoi(Container)
+				opcode = binaryToDecimal(opcode)
+			}
+		}
+
+		//B format
+		if opcode >= 160 && opcode <= 191 {
+			Answer = (checkForValue(opcode, ValidInstructions))
+			// opcode 6 bits, offset(w) 26 bits
+			// using 2s compliment 26 bits converted (length 8) = 0001 1010
+			jar = string(jar[5] + ' ')
+			//printing directly to file, function takes %s "string" and &d digit value
+			//s := fmt.Sprintf("B format - %s", jar)
+			s := fmt.Sprintf("B format - ", jar[0:11]+" "+jar[12:16]+" "+jar[17:22]+" "+jar[23:27]+" "+jar[28:32], Counter, Answer)
+
+			//adding new string and linebreak
+			result += s
+			result += "\n"
+			Holder = ""
+			jar = ""
+		}
+		//CB format
+		if opcode >= 1440 && opcode <= 1447 || opcode >= 1448 && opcode <= 1455 {
+			Answer = (checkForValue(opcode, ValidInstructions))
+			// opcode 8 bits, offset(w) 19 bits, conditional 5 bits
+			jar = string(jar[0] + ' ')
+			s := fmt.Sprintf("CB format - ", jar[0:11]+" "+jar[12:16]+" "+jar[17:22]+" "+jar[23:27]+" "+jar[28:32], Counter, Answer)
+
+			//adding new string and linebreak
+			result += s
+			result += "\n"
+			Holder = ""
+			jar = ""
+		}
+
+		//IM format
+		if opcode >= 1684 && opcode <= 1687 || opcode >= 1940 && opcode <= 1943 {
+			Answer = (checkForValue(opcode, ValidInstructions))
+			register1, _ := strconv.Atoi(jar[28:32])
+
+			register1 = binaryToDecimal(register1)
+
+			s := fmt.Sprintf("IM format - ", jar[0:11]+" "+jar[12:16]+" "+jar[17:22]+" "+jar[23:27]+" "+jar[28:32], Counter, Answer, register1)
+
+			//adding new string and linebreak
+			result += s
+			result += "\n"
+			Holder = ""
+			jar = ""
+		}
+		//I format response
+		if opcode >= 1160 && opcode <= 1161 || opcode >= 1672 && opcode <= 1673 {
+			Answer = (checkForValue(opcode, ValidInstructions))
+			register1, _ := strconv.Atoi(jar[23:27])
+			register2, _ := strconv.Atoi(jar[28:32])
+
+			register1 = binaryToDecimal(register1)
+			register2 = binaryToDecimal(register2)
+
+			s := fmt.Sprintf("I format - ", jar[0:11]+" "+jar[12:16]+" "+jar[17:22]+" "+jar[23:27]+" "+jar[28:32], Counter, Answer, register1, register2)
+
+			//adding new string and linebreak
+			result += s
+			result += "\n"
+			Holder = ""
+			jar = ""
+		}
+		//D format response
+		if opcode == 1986 || opcode == 1984 {
+			Answer = (checkForValue(opcode, ValidInstructions))
+			register1, _ := strconv.Atoi(jar[23:27])
+			register2, _ := strconv.Atoi(jar[28:32])
+
+			register1 = binaryToDecimal(register1)
+			register2 = binaryToDecimal(register2)
+
+			s := fmt.Sprintf("D format - ", jar[0:11]+" "+jar[12:16]+" "+jar[17:22]+" "+jar[23:27]+" "+jar[28:32], Counter, Answer, register1, register2)
+
+			//adding new string and linebreak
+			result += s
+			result += "\n"
+			Holder = ""
+			jar = ""
+		}
+		//R format response
+		if opcode == 1104 || opcode == 1112 || opcode == 1360 || opcode == 1624 ||
+			opcode == 1690 || opcode == 1691 || opcode == 1692 || opcode == 1872 {
+			Answer = (checkForValue(opcode, ValidInstructions))
+			register1, _ := strconv.Atoi(jar[23:27])
+			register2, _ := strconv.Atoi(jar[12:16])
+			register3, _ := strconv.Atoi(jar[28:32])
+
+			register1 = binaryToDecimal(register1)
+			register2 = binaryToDecimal(register2)
+			register3 = binaryToDecimal(register3)
+
+			//printing directly to file function takes %s "string" and &d digit value
+			s := fmt.Sprintf("%s %s %s %s %s %d %s R%d,R%d,R%d", jar[0:11], jar[12:16], jar[17:22], jar[23:27], jar[28:32], Counter, Answer, register1, register2, register3)
+			//adding new string and linebreak
+			result += s
+			result += "\n"
+			Holder = ""
+			jar = ""
+		}
+
+		if opcode == 2038 {
+			intVar, _ := strconv.Atoi(Tester)
+			TwosCompDecimal, _ := strconv.ParseInt(string(intVar), 2, 64)
+			s := fmt.Sprintf("%d", TwosCompDecimal)
+			result += s
+			result += "\n"
+			Holder = ""
+			jar = ""
+		}
+		Counter += 4
+	}
+	return result
+}
+
+// For project 2
 func convertInstructionStringToStruct(file string) []*Instruction {
 	//Open the file
 	data, error := os.Open(file)
@@ -238,10 +231,10 @@ func convertInstructionStringToStruct(file string) []*Instruction {
 		result = append(result, instruction)
 		count += 4
 	}
-	fmt.Println(result)
 	return result
 }
 
+// NewInstruction For project 2
 func NewInstruction(data string, count int) *Instruction {
 
 	value, error := strconv.ParseUint(data, 2, 32)
@@ -255,32 +248,26 @@ func NewInstruction(data string, count int) *Instruction {
 	return &instr
 }
 
+// For project 2
 // Converting 11 bits to opcode(uint64)
 func getOpcode(data string) uint64 {
 
 	bits, error := strconv.Atoi(data)
 	//check for errors
 	errorOpeningFile(error)
-	return binaryToDecimal(bits)
+	return uint64(binaryToDecimal(bits))
 
 }
 
-func getTypeOfInstruction(opcode uint64, jar string) (string, uint8, uint8, uint8) {
+// For project 2
+func getTypeOfInstruction(opcode uint64, jar string) string {
 
 	var result = ""
-	var rn = 0
-	var rm = 0
-	var rd = 0
 	switch opcode {
 	case 1986, 1984:
 		result = "D"
-		rn, _ = strconv.Atoi(jar[23:27])
-		rm, _ = strconv.Atoi(jar[28:32])
 	case 1104, 1112, 1360, 1624, 1690, 1691, 1692, 1872:
 		result = "R"
-		rn, _ = strconv.Atoi(jar[23:27])
-		rm, _ = strconv.Atoi(jar[12:16])
-		rd, _ = strconv.Atoi(jar[28:32])
 	case 2038:
 		result = "BREAK"
 	default:
@@ -292,48 +279,48 @@ func getTypeOfInstruction(opcode uint64, jar string) (string, uint8, uint8, uint
 		}
 		if opcode >= 1684 && opcode <= 1687 || opcode >= 1940 && opcode <= 1943 {
 			result = "IM"
-			rn, _ = strconv.Atoi(jar[28:32])
 		}
 		if opcode >= 1160 && opcode <= 1161 || opcode >= 1672 && opcode <= 1673 {
 			result = "I"
-			rn, _ = strconv.Atoi(jar[23:27])
-			rm, _ = strconv.Atoi(jar[28:32])
 		}
 	}
-	return result, uint8(rn), uint8(rm), uint8(rd)
+	return result
 }
 
-func formattedString(element Instruction) string {
-	fmt.Println("struct: ", element)
-	//TODO use conversion register1, _ := strconv.Atoi(jar[23:27])
-	//s := fmt.Sprintf(" typeofInstruction: %s rawInstruction: %s lineValue: %d programCnt: %d opcode: %d op: %s rd: %d rn: %d rm: %d im: %s \n", element.typeofInstruction, element.rawInstruction, element.lineValue, element.programCnt, element.opcode, element.op, element.rd, element.rn, element.rm, element.im)
-	s := fmt.Sprintf(
-		"rawInstruction: %s programCnt: %d op: %s \n",
-		element.rawInstruction,
-		element.programCnt,
-		element.op,
-	)
-	//10001011000 00010 000000 00001 00011    96    ADD    R2, R1, R3
-	return s
-}
+//TODO for project2
+//func formattedString(element Instruction) string {
+//	opcode := element.rawInstruction[0:11]
+//
+//	s := fmt.Sprintf(
+//		"%s %d %s %d\n",
+//		opcode,
+//		element.programCnt,
+//		element.op,
+//		element.rm,
+//	)
+//	return s
+//}
 
 // // TODO working through writeToFile
-func writeToFile(path string, instructionStructs []*Instruction) {
-
-	f, error := os.OpenFile(path,
-		os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	errorOpeningFile(error)
-	defer f.Close()
+func writeToFile(path string, info string, instructionStructs []*Instruction) {
+	// TODO : for project 2
+	//f, error := os.OpenFile(path,
+	//	os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	//errorOpeningFile(error)
+	//defer f.Close()
 	//create a loop through each struct and call write string inside the loop
-	for _, element := range instructionStructs {
+	//for _, element := range instructionStructs {
+	//
+	//	info := formattedString(*element)
+	//	_, error := f.WriteString(info)
+	//	errorOpeningFile(error)
+	//}
 
-		info := formattedString(*element)
-		_, error := f.WriteString(info)
-		errorOpeningFile(error)
-	}
+	os.WriteFile(path, []byte(info), 0666)
 
 }
 
+// For project 2
 func getOp(opcode uint64) string {
 	ValidInstructions := map[uint64]string{
 		1104: "AND",
@@ -348,7 +335,50 @@ func getOp(opcode uint64) string {
 	return ValidInstructions[opcode]
 }
 
-//TODO function to match on the op and return the variable opcode length
+//TODO for project2 to build out switch cases per instruction type
+//func getFileContent(structs []*Instruction) string {
+//	result := ""
+//	for _, s := range structs {
+//		jar := s.rawInstruction
+//		switch s.typeofInstruction {
+//		case "R":
+//			Answer = (checkForValue(int(s.opcode, ValidInstructions))
+//			register1, _ := strconv.Atoi(jar[23:27])
+//			register2, _ := strconv.Atoi(jar[12:16])
+//			register3, _ := strconv.Atoi(jar[28:32])
+//
+//			register1 = binaryToDecimal(register1)
+//			register2 = binaryToDecimal(register2)
+//			register3 = binaryToDecimal(register3)
+//
+//			//printing directly to file function takes %s "string" and &d digit value
+//			s := fmt.Sprintf("%s %s %s %s %s %d %s R%d,R%d,R%d",
+//			jar[0:11],
+//			jar[12:16],
+//			jar[17:22],
+//			jar[23:27],
+//			jar[28:32],
+//			Counter,
+//			Answer,
+//			register1,
+//			register2,
+//			register3)
+
+//			//demo.go version needs review
+//			//s := fmt.Sprintf("R format - ", jar[0:11]+" "+jar[12:16]+" "+jar[17:22]+" "+jar[23:27]+" "+jar[28:32],
+//			Counter,
+//			Answer,
+//			register1,
+//			register2,
+//			register3)
+//
+//			//adding new string and linebreak
+//			result += s
+//			result += "\n"
+//		}
+//	}
+//	return result
+//}
 
 func main() {
 
@@ -373,28 +403,19 @@ func main() {
 	//and make an instruction struct
 	var instructionStructSlice = convertInstructionStringToStruct(*inputPath)
 
-	for index, element := range instructionStructSlice {
+	for _, element := range instructionStructSlice {
 		//1st eleven bits of the structs rawInstruction
 		op := element.rawInstruction[0:11]
-		//TODO calculate rm rd im rn
-		//rm := element.rawInstruction[11:16]
-		//rd := element.rawInstruction[11:16]
-		//im := element.rawInstruction[11:16]
 
 		//Set the converted opCode string -> uint64
 		element.opcode = getOpcode(op)
 		element.op = getOp(element.opcode)
 
-		element.typeofInstruction, element.rn, element.rm, element.rd = getTypeOfInstruction(element.opcode, element.rawInstruction)
-		//TODO use the element.typeofInstructino to
-		//case B:
-		//return the 6 bits of the opcode/raw instructions.
-		fmt.Println("\n \n final print in loop")
-		fmt.Println("At index", index, "struct: ", element)
-		fmt.Println("\n \n final print in loop")
+		element.typeofInstruction = getTypeOfInstruction(element.opcode, element.rawInstruction)
 	}
 
 	os.Remove(*outputPath)
 	//TODO delete file at teh start of main
-	writeToFile(*outputPath, instructionStructSlice)
+	formattedInstructions := getInstructionFormat(*inputPath)
+	writeToFile(*outputPath, formattedInstructions, instructionStructSlice)
 }
