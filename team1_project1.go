@@ -221,7 +221,7 @@ func checkForValue(val int, instructions map[int]string) string {
 // Open the file
 // Read each line of the file
 // Convert the line to a struct
-func convertInstructionStringToStruct(file string) []Instruction {
+func convertInstructionStringToStruct(file string) []*Instruction {
 	//Open the file
 	data, error := os.Open(file)
 	//check for errors
@@ -230,12 +230,12 @@ func convertInstructionStringToStruct(file string) []Instruction {
 	fileScanner := bufio.NewScanner(data)
 	fileScanner.Split(bufio.ScanLines)
 
-	var result []Instruction
+	var result []*Instruction
 	var count = 96
 	for fileScanner.Scan() {
 		var line = fileScanner.Text()
 		var instruction = NewInstruction(line, count)
-		result = append(result, *instruction)
+		result = append(result, instruction)
 		count += 4
 	}
 	fmt.Println(result)
@@ -265,14 +265,22 @@ func getOpcode(data string) uint64 {
 
 }
 
-func getTypeOfInstruction(opcode uint64) string {
+func getTypeOfInstruction(opcode uint64, jar string) (string, uint8, uint8, uint8) {
 
 	var result = ""
+	var rn = 0
+	var rm = 0
+	var rd = 0
 	switch opcode {
 	case 1986, 1984:
 		result = "D"
+		rn, _ = strconv.Atoi(jar[23:27])
+		rm, _ = strconv.Atoi(jar[28:32])
 	case 1104, 1112, 1360, 1624, 1690, 1691, 1692, 1872:
 		result = "R"
+		rn, _ = strconv.Atoi(jar[23:27])
+		rm, _ = strconv.Atoi(jar[12:16])
+		rd, _ = strconv.Atoi(jar[28:32])
 	case 2038:
 		result = "BREAK"
 	default:
@@ -284,23 +292,33 @@ func getTypeOfInstruction(opcode uint64) string {
 		}
 		if opcode >= 1684 && opcode <= 1687 || opcode >= 1940 && opcode <= 1943 {
 			result = "IM"
+			rn, _ = strconv.Atoi(jar[28:32])
 		}
 		if opcode >= 1160 && opcode <= 1161 || opcode >= 1672 && opcode <= 1673 {
 			result = "I"
+			rn, _ = strconv.Atoi(jar[23:27])
+			rm, _ = strconv.Atoi(jar[28:32])
 		}
 	}
-	return result
+	return result, uint8(rn), uint8(rm), uint8(rd)
 }
 
 func formattedString(element Instruction) string {
+	fmt.Println("struct: ", element)
 	//TODO use conversion register1, _ := strconv.Atoi(jar[23:27])
-	s := fmt.Sprintf(" typeofInstruction: %s rawInstruction: %s lineValue: %d programCnt: %d opcode: %d op: %s rd: %d rn: %d rm: %d im: %s \n", element.typeofInstruction, element.rawInstruction, element.lineValue, element.programCnt, element.opcode, element.op, element.rd, element.rn, element.rm, element.im)
+	//s := fmt.Sprintf(" typeofInstruction: %s rawInstruction: %s lineValue: %d programCnt: %d opcode: %d op: %s rd: %d rn: %d rm: %d im: %s \n", element.typeofInstruction, element.rawInstruction, element.lineValue, element.programCnt, element.opcode, element.op, element.rd, element.rn, element.rm, element.im)
+	s := fmt.Sprintf(
+		"rawInstruction: %s programCnt: %d op: %s \n",
+		element.rawInstruction,
+		element.programCnt,
+		element.op,
+	)
 	//10001011000 00010 000000 00001 00011    96    ADD    R2, R1, R3
 	return s
 }
 
 // // TODO working through writeToFile
-func writeToFile(path string, instructionStructs []Instruction) {
+func writeToFile(path string, instructionStructs []*Instruction) {
 
 	f, error := os.OpenFile(path,
 		os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
@@ -309,7 +327,7 @@ func writeToFile(path string, instructionStructs []Instruction) {
 	//create a loop through each struct and call write string inside the loop
 	for _, element := range instructionStructs {
 
-		info := formattedString(element)
+		info := formattedString(*element)
 		_, error := f.WriteString(info)
 		errorOpeningFile(error)
 	}
@@ -367,13 +385,16 @@ func main() {
 		element.opcode = getOpcode(op)
 		element.op = getOp(element.opcode)
 
-		element.typeofInstruction = getTypeOfInstruction(element.opcode)
+		element.typeofInstruction, element.rn, element.rm, element.rd = getTypeOfInstruction(element.opcode, element.rawInstruction)
 		//TODO use the element.typeofInstructino to
 		//case B:
 		//return the 6 bits of the opcode/raw instructions.
-
+		fmt.Println("\n \n final print in loop")
 		fmt.Println("At index", index, "struct: ", element)
+		fmt.Println("\n \n final print in loop")
 	}
+
+	os.Remove(*outputPath)
 	//TODO delete file at teh start of main
 	writeToFile(*outputPath, instructionStructSlice)
 }
