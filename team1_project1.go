@@ -246,6 +246,7 @@ func NewInstruction(data string, count int) *Instruction {
 
 	value, error := strconv.ParseUint(data, 2, 32)
 	errorOpeningFile(error)
+	//Setting instruction
 	instr := Instruction{
 		rawInstruction: data,
 		lineValue:      value,
@@ -291,28 +292,29 @@ func getTypeOfInstruction(opcode uint64) string {
 	return result
 }
 
-//func formattedString(element Instruction) string {
-//	//TODO use conversion register1, _ := strconv.Atoi(jar[23:27])
-//	s := fmt.Sprintf("#{element.opcode} #{element.}...")
-//	//10001011000 00010 000000 00001 00011    96    ADD    R2, R1, R3
-//}
+func formattedString(element Instruction) string {
+	//TODO use conversion register1, _ := strconv.Atoi(jar[23:27])
+	s := fmt.Sprintf(" typeofInstruction: %s rawInstruction: %s lineValue: %d programCnt: %d opcode: %d op: %s rd: %d rn: %d rm: %d im: %s \n", element.typeofInstruction, element.rawInstruction, element.lineValue, element.programCnt, element.opcode, element.op, element.rd, element.rn, element.rm, element.im)
+	//10001011000 00010 000000 00001 00011    96    ADD    R2, R1, R3
+	return s
+}
 
-//TODO working through writeToFile
-//func writeToFile(path string, instructionStructs []Instruction) {
-//
-//	f, error := os.OpenFile(path,
-//		os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-//	errorOpeningFile(error)
-//	defer f.Close()
-//	//create a loop through each struct and call write string inside the loop
-//	for index, element := range instructionStructs {
-//
-//		info := formattedString(element)
-//		_, error := f.WriteString(info)
-//		errorOpeningFile(error)
-//	}
-//
-//}
+// // TODO working through writeToFile
+func writeToFile(path string, instructionStructs []Instruction) {
+
+	f, error := os.OpenFile(path,
+		os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	errorOpeningFile(error)
+	defer f.Close()
+	//create a loop through each struct and call write string inside the loop
+	for _, element := range instructionStructs {
+
+		info := formattedString(element)
+		_, error := f.WriteString(info)
+		errorOpeningFile(error)
+	}
+
+}
 
 func getOp(opcode uint64) string {
 	ValidInstructions := map[uint64]string{
@@ -331,6 +333,8 @@ func getOp(opcode uint64) string {
 	}
 	return ValidInstructions[opcode]
 }
+
+//TODO function to match on the op and return the variable opcode length
 
 func main() {
 
@@ -351,16 +355,6 @@ func main() {
 		os.Exit(1)
 	}
 
-	//TODO: Use os.Create to read/write rather than saving everything in memory and dumping it in os.WriteFile
-	//create a file and check for errors
-	//File, err := os.Create(*outputPath)
-	//defer File.Close()
-
-	//instructionFormat := getInstructionFormat(*inputPath)
-	//fmt.Println("InputPath: ", *inputPath)
-	//os.WriteFile(*outputPath, []byte(instructionFormat), 0666)
-	//os.Exit(0)
-
 	//Loop through each line in the input file
 	//and make an instruction struct
 	var instructionStructSlice = convertInstructionStringToStruct(*inputPath)
@@ -368,15 +362,22 @@ func main() {
 	for index, element := range instructionStructSlice {
 		//1st eleven bits of the structs rawInstruction
 		op := element.rawInstruction[0:11]
-		//rm := element.rawInstruction[11:16] //
-
-		//Store the op binary - 1st 11 bits
+		//TODO calculate rm rd im rn
+		//rm := element.rawInstruction[11:16]
+		//rd := element.rawInstruction[11:16]
+		//im := element.rawInstruction[11:16]
 
 		//Set the converted opCode string -> uint64
 		element.opcode = getOpcode(op)
 		element.op = getOp(element.opcode)
+
 		element.typeofInstruction = getTypeOfInstruction(element.opcode)
+		//TODO use the element.typeofInstructino to
+		//case B:
+		//return the 6 bits of the opcode/raw instructions.
 
 		fmt.Println("At index", index, "struct: ", element)
 	}
+	//TODO delete file at teh start of main
+	writeToFile(*outputPath, instructionStructSlice)
 }
