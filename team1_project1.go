@@ -11,7 +11,6 @@ import (
 )
 
 type Instruction struct {
-	//values/data to be read from the file
 	typeofInstruction string
 	rawInstruction    string
 	lineValue         uint64
@@ -232,22 +231,25 @@ func convertInstructionStringToStruct(file string) []Instruction {
 	fileScanner.Split(bufio.ScanLines)
 
 	var result []Instruction
+	var count = 96
 	for fileScanner.Scan() {
 		var line = fileScanner.Text()
-		var instruction = NewInstruction(line)
+		var instruction = NewInstruction(line, count)
 		result = append(result, *instruction)
+		count += 4
 	}
 	fmt.Println(result)
 	return result
 }
 
-func NewInstruction(data string) *Instruction {
+func NewInstruction(data string, count int) *Instruction {
 
 	value, error := strconv.ParseUint(data, 2, 32)
 	errorOpeningFile(error)
 	instr := Instruction{
 		rawInstruction: data,
 		lineValue:      value,
+		programCnt:     count,
 	}
 	return &instr
 }
@@ -270,6 +272,8 @@ func getTypeOfInstruction(opcode uint64) string {
 		result = "D"
 	case 1104, 1112, 1360, 1624, 1690, 1691, 1692, 1872:
 		result = "R"
+	case 2038:
+		result = "BREAK"
 	default:
 		if opcode >= 160 && opcode <= 191 {
 			result = "B"
@@ -285,6 +289,27 @@ func getTypeOfInstruction(opcode uint64) string {
 		}
 	}
 	return result
+}
+
+func formattedString(element Instruction) string {
+	s := fmt.Sprintf("#{element.opcode} #{element.}")
+	//10001011000 00010 000000 00001 00011    96    ADD    R2, R1, R3
+}
+
+func writeToFile(path string, instructionStructs []Instruction) {
+
+	f, error := os.OpenFile(path,
+		os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	errorOpeningFile(error)
+	defer f.Close()
+	//create a loop through each struct and call write string inside the loop
+	for index, element := range instructionStructs {
+
+		info := formattedString(element)
+		_, error := f.WriteString(info)
+		errorOpeningFile(error)
+	}
+
 }
 
 func getOp(opcode uint64) string {
@@ -337,6 +362,8 @@ func main() {
 	for index, element := range instructionStructSlice {
 		//1st eleven bits of the structs rawInstruction
 		op := element.rawInstruction[0:11]
+		rm := element.rawInstruction[11:16]
+
 		//Store the op binary - 1st 11 bits
 
 		//Set the converted opCode string -> uint64
