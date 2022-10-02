@@ -7,9 +7,9 @@ import (
 	"math"
 	"os"
 	"strconv"
-	//"log"//possible need
 )
 
+// Instruction For project 2
 type Instruction struct {
 	typeofInstruction string
 	rawInstruction    string
@@ -23,8 +23,6 @@ type Instruction struct {
 	im                string
 	rt                uint8
 }
-
-//Opening func to create the Instruction struct
 
 // helper will streamline error checks below
 func errorOpeningFile(err error) {
@@ -63,8 +61,8 @@ func getInstructionFormat(content string) string {
 	var Answer = ""
 	var jar = ""
 	var Holder = ""
-	var Counter = 96 //memory location starting point
-	//should increment by 4 bytes for each instruction
+	var Counter = 96
+
 	ValidInstructions := map[int]string{
 		1104: "AND",
 		1112: "ADD",
@@ -124,9 +122,6 @@ func getInstructionFormat(content string) string {
 			jar = string(jar[0] + ' ')
 			s := fmt.Sprintf("CB format - ", jar[0:11]+" "+jar[12:16]+" "+jar[17:22]+" "+jar[23:27]+" "+jar[28:32], Counter, Answer)
 
-			//printing directly to file function takes %s "string" and &d digit value
-			//s := fmt.Sprintf("CB format - %s", jar)
-
 			//adding new string and linebreak
 			result += s
 			result += "\n"
@@ -139,12 +134,9 @@ func getInstructionFormat(content string) string {
 			Answer = (checkForValue(opcode, ValidInstructions))
 			register1, _ := strconv.Atoi(jar[28:32])
 
-			//register1 = binaryToDecimal(register1)
+			register1 = binaryToDecimal(register1)
 
 			s := fmt.Sprintf("IM format - ", jar[0:11]+" "+jar[12:16]+" "+jar[17:22]+" "+jar[23:27]+" "+jar[28:32], Counter, Answer, register1)
-
-			//printing directly to file function takes %s "string" and &d digit value
-			//s := fmt.Sprintf("IM format - %s", jar)
 
 			//adding new string and linebreak
 			result += s
@@ -158,13 +150,10 @@ func getInstructionFormat(content string) string {
 			register1, _ := strconv.Atoi(jar[23:27])
 			register2, _ := strconv.Atoi(jar[28:32])
 
-			//register1 = binaryToDecimal(register1)
-			//register2 = binaryToDecimal(register2)
+			register1 = binaryToDecimal(register1)
+			register2 = binaryToDecimal(register2)
 
 			s := fmt.Sprintf("I format - ", jar[0:11]+" "+jar[12:16]+" "+jar[17:22]+" "+jar[23:27]+" "+jar[28:32], Counter, Answer, register1, register2)
-
-			//printing directly to file function takes %s "string" and &d digit value
-			//s := fmt.Sprintf("I format - %s", jar)
 
 			//adding new string and linebreak
 			result += s
@@ -177,14 +166,11 @@ func getInstructionFormat(content string) string {
 			Answer = (checkForValue(opcode, ValidInstructions))
 			register1, _ := strconv.Atoi(jar[23:27])
 			register2, _ := strconv.Atoi(jar[28:32])
-			//
+
 			register1 = binaryToDecimal(register1)
 			register2 = binaryToDecimal(register2)
 
 			s := fmt.Sprintf("D format - ", jar[0:11]+" "+jar[12:16]+" "+jar[17:22]+" "+jar[23:27]+" "+jar[28:32], Counter, Answer, register1, register2)
-
-			//printing directly to file function takes %s "string" and &d digit value
-			//s := fmt.Sprintf("D format - %s", jar)
 
 			//adding new string and linebreak
 			result += s
@@ -192,7 +178,7 @@ func getInstructionFormat(content string) string {
 			Holder = ""
 			jar = ""
 		}
-		//Rformat response
+		//R format response
 		if opcode == 1104 || opcode == 1112 || opcode == 1360 || opcode == 1624 ||
 			opcode == 1690 || opcode == 1691 || opcode == 1692 || opcode == 1872 {
 			Answer = (checkForValue(opcode, ValidInstructions))
@@ -206,9 +192,6 @@ func getInstructionFormat(content string) string {
 
 			//printing directly to file function takes %s "string" and &d digit value
 			s := fmt.Sprintf("%s %s %s %s %s %d %s R%d,R%d,R%d", jar[0:11], jar[12:16], jar[17:22], jar[23:27], jar[28:32], Counter, Answer, register1, register2, register3)
-			//demo.go version needs review
-			//s := fmt.Sprintf("R format - ", jar[0:11]+" "+jar[12:16]+" "+jar[17:22]+" "+jar[23:27]+" "+jar[28:32], Counter, Answer, register1, register2, register3)
-
 			//adding new string and linebreak
 			result += s
 			result += "\n"
@@ -220,9 +203,7 @@ func getInstructionFormat(content string) string {
 	return result
 }
 
-// Open the file
-// Read each line of the file
-// Convert the line to a struct
+// For project 2
 func convertInstructionStringToStruct(file string) []*Instruction {
 	//Open the file
 	data, error := os.Open(file)
@@ -243,6 +224,7 @@ func convertInstructionStringToStruct(file string) []*Instruction {
 	return result
 }
 
+// NewInstruction For project 2
 func NewInstruction(data string, count int) *Instruction {
 
 	value, error := strconv.ParseUint(data, 2, 32)
@@ -256,6 +238,7 @@ func NewInstruction(data string, count int) *Instruction {
 	return &instr
 }
 
+// For project 2
 // Converting 11 bits to opcode(uint64)
 func getOpcode(data string) uint64 {
 
@@ -266,6 +249,7 @@ func getOpcode(data string) uint64 {
 
 }
 
+//For project 2
 func getTypeOfInstruction(opcode uint64, jar string) string {
 
 	var result = ""
@@ -293,22 +277,19 @@ func getTypeOfInstruction(opcode uint64, jar string) string {
 	return result
 }
 
-func formattedString(element Instruction) string {
-	fmt.Println("struct: ", element)
-	//TODO use conversion register1, _ := strconv.Atoi(jar[23:27])
-	//s := fmt.Sprintf(" typeofInstruction: %s rawInstruction: %s lineValue: %d programCnt: %d opcode: %d op: %s rd: %d rn: %d rm: %d im: %s \n", element.typeofInstruction, element.rawInstruction, element.lineValue, element.programCnt, element.opcode, element.op, element.rd, element.rn, element.rm, element.im)
-	opcode := element.rawInstruction[0:11]
-
-	s := fmt.Sprintf(
-		"%s %d %s %d\n",
-		opcode,
-		element.programCnt,
-		element.op,
-		element.rm,
-	)
-	//10001011000 00010 000000 00001 00011    96    ADD    R2, R1, R3
-	return s
-}
+//TODO for project2
+//func formattedString(element Instruction) string {
+//	opcode := element.rawInstruction[0:11]
+//
+//	s := fmt.Sprintf(
+//		"%s %d %s %d\n",
+//		opcode,
+//		element.programCnt,
+//		element.op,
+//		element.rm,
+//	)
+//	return s
+//}
 
 // // TODO working through writeToFile
 func writeToFile(path string, info string, instructionStructs []*Instruction) {
@@ -329,6 +310,7 @@ func writeToFile(path string, info string, instructionStructs []*Instruction) {
 
 }
 
+//For project 2
 func getOp(opcode uint64) string {
 	ValidInstructions := map[uint64]string{
 		1104: "AND",
@@ -343,7 +325,50 @@ func getOp(opcode uint64) string {
 	return ValidInstructions[opcode]
 }
 
-//TODO function to match on the op and return the variable opcode length
+//TODO for project2 to build out switch cases per instruction type
+//func getFileContent(structs []*Instruction) string {
+//	result := ""
+//	for _, s := range structs {
+//		jar := s.rawInstruction
+//		switch s.typeofInstruction {
+//		case "R":
+//			Answer = (checkForValue(int(s.opcode, ValidInstructions))
+//			register1, _ := strconv.Atoi(jar[23:27])
+//			register2, _ := strconv.Atoi(jar[12:16])
+//			register3, _ := strconv.Atoi(jar[28:32])
+//
+//			register1 = binaryToDecimal(register1)
+//			register2 = binaryToDecimal(register2)
+//			register3 = binaryToDecimal(register3)
+//
+//			//printing directly to file function takes %s "string" and &d digit value
+//			s := fmt.Sprintf("%s %s %s %s %s %d %s R%d,R%d,R%d",
+//			jar[0:11],
+//			jar[12:16],
+//			jar[17:22],
+//			jar[23:27],
+//			jar[28:32],
+//			Counter,
+//			Answer,
+//			register1,
+//			register2,
+//			register3)
+
+//			//demo.go version needs review
+//			//s := fmt.Sprintf("R format - ", jar[0:11]+" "+jar[12:16]+" "+jar[17:22]+" "+jar[23:27]+" "+jar[28:32],
+//			Counter,
+//			Answer,
+//			register1,
+//			register2,
+//			register3)
+//
+//			//adding new string and linebreak
+//			result += s
+//			result += "\n"
+//		}
+//	}
+//	return result
+//}
 
 func main() {
 
@@ -377,10 +402,6 @@ func main() {
 		element.op = getOp(element.opcode)
 
 		element.typeofInstruction = getTypeOfInstruction(element.opcode, element.rawInstruction)
-		//TODO use the element.typeofInstructino to
-		//case B:
-		//return the 6 bits of the opcode/raw instructions.
-
 	}
 
 	os.Remove(*outputPath)
