@@ -85,7 +85,7 @@ func getInstructionFormat(content string) {
 		}
 		// B format
 		if opcode >= 160 && opcode <= 191 {
-			jar = string(jar[5] + ' ')
+			jar = string(jar[6] + ' ')
 			//printing directly to file, function takes %s "string" and &d digit value
 			//s := fmt.Sprintf("B format - %s", jar)
 
@@ -93,9 +93,10 @@ func getInstructionFormat(content string) {
 			Answer = (checkForValue(opcode, ValidInstructions))
 			// opcode 6 bits, offset(w) 26 bits
 			// using 2s compliment 26 bits converted (length 8) = 0001 1010
-			jar = string(jar[5] + ' ')
 
-			s := fmt.Sprintf("B format - ", jar[0:11]+" "+jar[12:16]+" "+jar[17:22]+" "+jar[23:27]+" "+jar[28:32], Counter, Answer)
+			jar = string(jar[0] + ' ')
+
+			s := fmt.Sprintf("%s %d %s", jar[0:11]+" "+jar[12:16]+" "+jar[17:22]+" "+jar[23:27]+" "+jar[28:32], Counter, Answer)
 			result += s
 			result += "\n"
 			Holder = ""
@@ -110,8 +111,8 @@ func getInstructionFormat(content string) {
 			//adding new string and linebreak
 			Answer = (checkForValue(opcode, ValidInstructions))
 			// opcode 8 bits, offset(w) 19 bits, conditional 5 bits
-			jar = string(jar[0] + ' ')
-			s := fmt.Sprintf("CB format - ", jar[0:11]+" "+jar[12:16]+" "+jar[17:22]+" "+jar[23:27]+" "+jar[28:32], Counter, Answer)
+			jar = string(jar[5] + ' ')
+			s := fmt.Sprintf("%s %d %s", jar[0:11]+" "+jar[12:16]+" "+jar[17:22]+" "+jar[23:27]+" "+jar[28:32], Counter, Answer)
 			result += s
 			result += "\n"
 			Holder = ""
@@ -129,7 +130,7 @@ func getInstructionFormat(content string) {
 
 			register1 = binaryToDecimal(register1)
 
-			s := fmt.Sprintf("IM format - ", jar[0:11]+" "+jar[12:16]+" "+jar[17:22]+" "+jar[23:27]+" "+jar[28:32], Counter, Answer, register1)
+			s := fmt.Sprintf("%s %d %s %d", jar[0:11]+" "+jar[12:16]+" "+jar[17:22]+" "+jar[23:27]+" "+jar[28:32], Counter, Answer, register1)
 			result += s
 			result += "\n"
 			Holder = ""
@@ -149,7 +150,7 @@ func getInstructionFormat(content string) {
 			register1 = binaryToDecimal(register1)
 			register2 = binaryToDecimal(register2)
 
-			s := fmt.Sprintf("I format - ", jar[0:11]+" "+jar[12:16]+" "+jar[17:22]+" "+jar[23:27]+" "+jar[28:32], Counter, Answer, register1, register2)
+			s := fmt.Sprintf("%s %d %s %d %d", jar[0:11]+" "+jar[12:16]+" "+jar[17:22]+" "+jar[23:27]+" "+jar[28:32], Counter, Answer, register1, register2)
 			result += s
 			result += "\n"
 			Holder = ""
@@ -169,13 +170,13 @@ func getInstructionFormat(content string) {
 			register1 = binaryToDecimal(register1)
 			register2 = binaryToDecimal(register2)
 
-			s := fmt.Sprintf("D format - ", jar[0:11]+" "+jar[12:16]+" "+jar[17:22]+" "+jar[23:27]+" "+jar[28:32], Counter, Answer, register1, register2)
+			s := fmt.Sprintf("%s %d %s %d %d", jar[0:11]+" "+jar[12:16]+" "+jar[17:22]+" "+jar[23:27]+" "+jar[28:32], Counter, Answer, register1, register2)
 			result += s
 			result += "\n"
 			Holder = ""
 			jar = ""
 		}
-		//Rformat response
+		//R format response
 		if opcode == 1104 || opcode == 1112 || opcode == 1360 || opcode == 1624 ||
 			opcode == 1690 || opcode == 1691 || opcode == 1692 || opcode == 1872 {
 			Answer = (checkForValue(opcode, ValidInstructions))
