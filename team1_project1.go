@@ -198,6 +198,16 @@ func getInstructionFormat(content string) string {
 			Holder = ""
 			jar = ""
 		}
+
+		if opcode == 2038 {
+			intVar, _ := strconv.Atoi(Tester)
+			TwosCompDecimal, _ := strconv.ParseInt(string(intVar), 2, 64)
+			s := fmt.Sprintf("%d", TwosCompDecimal)
+			result += s
+			result += "\n"
+			Holder = ""
+			jar = ""
+		}
 		Counter += 4
 	}
 	return result
@@ -249,7 +259,7 @@ func getOpcode(data string) uint64 {
 
 }
 
-//For project 2
+// For project 2
 func getTypeOfInstruction(opcode uint64, jar string) string {
 
 	var result = ""
@@ -310,7 +320,7 @@ func writeToFile(path string, info string, instructionStructs []*Instruction) {
 
 }
 
-//For project 2
+// For project 2
 func getOp(opcode uint64) string {
 	ValidInstructions := map[uint64]string{
 		1104: "AND",
