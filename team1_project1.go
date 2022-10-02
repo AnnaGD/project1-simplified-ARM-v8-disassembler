@@ -292,7 +292,8 @@ func getTypeOfInstruction(opcode uint64) string {
 }
 
 func formattedString(element Instruction) string {
-	s := fmt.Sprintf("#{element.opcode} #{element.}")
+	//TODO use conversion register1, _ := strconv.Atoi(jar[23:27])
+	s := fmt.Sprintf("#{element.opcode} #{element.}...")
 	//10001011000 00010 000000 00001 00011    96    ADD    R2, R1, R3
 }
 
