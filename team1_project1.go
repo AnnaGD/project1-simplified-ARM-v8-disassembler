@@ -325,8 +325,12 @@ func getOp(opcode uint64) string {
 	ValidInstructions := map[uint64]string{
 		1104: "AND",
 		1112: "ADD",
+		//1160: "ADDI",
+		//1161: "ADDI",
 		1360: "ORR",
 		1624: "SUB",
+		//1672: "SUBI",
+		//1673: "SUBI",
 		1690: "LSR",
 		1691: "LSL",
 		1692: "ASR",
