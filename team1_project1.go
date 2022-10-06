@@ -118,14 +118,16 @@ func getInstructionFormat(content string) string {
 		case 1:
 			//B format
 			if opcode >= 160 && opcode <= 191 {
-				Answer = (checkForValue(opcode, ValidInstructions))
+				//Answer = (checkForValue(opcode, ValidInstructions))
 				// opcode 6 bits, offset(w) 26 bits
 				// using 2s compliment 26 bits converted (length 8) = 0001 1010
-				jar = string(jar[5] + ' ')
+				//fmt.Println("Answer: ", Answer)
+				//jar = string(jar[6] + ' ')
 				//printing directly to file, function takes %s "string" and &d digit value
 				//s := fmt.Sprintf("B format - %s", jar)
-				fmt.Println("Hit jar: ", jar)
-				s := fmt.Sprintf(jar[0:11]+" "+jar[12:16]+" "+jar[17:22]+" "+jar[23:27]+" "+jar[28:32], Counter, Answer)
+				//fmt.Println("Hit jar: ", jar)
+				s := fmt.Sprintf(jar[0:6]+" "+jar[6:32], Counter)
+				fmt.Println("s: ", s)
 
 				//adding new string and linebreak
 				result += s
