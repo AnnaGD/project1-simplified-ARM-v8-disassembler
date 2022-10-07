@@ -88,6 +88,7 @@ func getInstructionFormat(content string) string {
 				opcode = binaryToDecimal(opcode)
 			}
 		}
+		fmt.Println("OpCode: ", opcode)
 
 		if opcode == 2038 {
 			Answer = checkForValue(opcode, ValidInstructions)
@@ -106,7 +107,7 @@ func getInstructionFormat(content string) string {
 			var num2 = 191
 			if opcode >= num1 && opcode <= num2 {
 				Answer = "B"
-				s := fmt.Sprintf("%s\t%d\t%s", jar[0:5]+" "+jar[6:32], Counter, Answer)
+				s := fmt.Sprintf("%s\t%d\t%s", jar[0:6]+" "+jar[7:32], Counter, Answer)
 
 				//adding new string and linebreak
 				result += s
@@ -219,7 +220,10 @@ func getInstructionFormat(content string) string {
 		//handles break case
 		case true:
 			bitString := jar
+			fmt.Println("Hit bitString: ", bitString)
 			TwosCompDecimal, _ := strconv.ParseInt(string(bitString), 2, 64)
+			//TODO: if statement to handle neg nums, if [0] == 1, fmt.Println("-": decimal val after binary code)
+			fmt.Println("Hit 2's Comp dec: ", TwosCompDecimal)
 			s := fmt.Sprintf("%s %s %d", bitString, "\t", TwosCompDecimal)
 			result += s
 			result += "\n"
@@ -269,7 +273,6 @@ func main() {
 	}
 
 	os.Remove(*outputPath)
-	//TODO delete file at teh start of main
 	formattedInstructions := getInstructionFormat(*inputPath)
 	writeToFile(*outputPath, formattedInstructions)
 }
