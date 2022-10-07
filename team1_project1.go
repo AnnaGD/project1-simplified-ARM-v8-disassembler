@@ -102,14 +102,11 @@ func getInstructionFormat(content string) string {
 		switch Switcher {
 		case false:
 			//B format
-			if opcode >= 160 && opcode <= 191 {
+			var num1 = 160
+			var num2 = 191
+			if opcode >= num1 && opcode <= num2 {
 				Answer = "B"
-				// opcode 6 bits, offset(w) 26 bits
-				// using 2s compliment 26 bits converted (length 8) = 0001 1010
-				jar = string(jar[5] + ' ')
-				//printing directly to file, function takes %s "string" and &d digit value
-				//s := fmt.Sprintf("B format - %s", jar)
-				s := fmt.Sprintf("%s\t%d\t%s", jar[0:11]+" "+jar[12:16]+" "+jar[17:22]+" "+jar[23:27]+" "+jar[28:32], Counter, Answer)
+				s := fmt.Sprintf("%s\t%d\t%s", jar[0:5]+" "+jar[6:32], Counter, Answer)
 
 				//adding new string and linebreak
 				result += s
@@ -118,22 +115,11 @@ func getInstructionFormat(content string) string {
 				jar = ""
 			}
 			//CB format
-			if opcode >= 1440 && opcode <= 1447 {
+			if opcode >= 1440 && opcode <= 1447 || opcode >= 1448 && opcode <= 1455 {
 				Answer = "CBZ"
-				// opcode 8 bits, offset(w) 19 bits, conditional 5 bits
-				jar = string(jar[0] + ' ')
-				s := fmt.Sprintf("%s\t%d\t%s", jar[0:11]+" "+jar[12:16]+" "+jar[17:22]+" "+jar[23:27]+" "+jar[28:32], Counter, Answer)
-
-				//adding new string and linebreak
-				result += s
-				result += "\n"
-				Holder = ""
-				jar = ""
-			}
-			if opcode >= 1448 && opcode <= 1455 {
-				Answer = "CBNZ"
-				// opcode 8 bits, offset(w) 19 bits, conditional 5 bits
-				jar = string(jar[0] + ' ')
+				if opcode >= 1448 && opcode <= 1455 {
+					Answer = "CBNZ"
+				}
 				s := fmt.Sprintf("%s\t%d\t%s", jar[0:11]+" "+jar[12:16]+" "+jar[17:22]+" "+jar[23:27]+" "+jar[28:32], Counter, Answer)
 
 				//adding new string and linebreak
@@ -144,7 +130,10 @@ func getInstructionFormat(content string) string {
 			}
 			//IM format
 			if opcode >= 1684 && opcode <= 1687 || opcode >= 1940 && opcode <= 1943 {
-				Answer = "MOVZ"
+				Answer = "MOVK"
+				if opcode >= 1684 && opcode <= 1687 {
+					Answer = "MOVZ"
+				}
 				register1, _ := strconv.Atoi(jar[28:32])
 
 				register1 = binaryToDecimal(register1)
@@ -157,39 +146,12 @@ func getInstructionFormat(content string) string {
 				Holder = ""
 				jar = ""
 			}
-			if opcode >= 1940 && opcode <= 1943 {
-				Answer = "MOVK"
-				register1, _ := strconv.Atoi(jar[28:32])
-
-				register1 = binaryToDecimal(register1)
-
-				s := fmt.Sprintf("%s\t%d\t%s\tR%d", jar[0:11]+" "+jar[12:16]+" "+jar[17:22]+" "+jar[23:27]+" "+jar[28:32], Counter, Answer, register1)
-
-				//adding new string and linebreak
-				result += s
-				result += "\n"
-				Holder = ""
-				jar = ""
-			}
 			//I format response
 			if opcode >= 1160 && opcode <= 1161 || opcode >= 1672 && opcode <= 1673 {
 				Answer = "ADDI"
-				register1, _ := strconv.Atoi(jar[23:27])
-				register2, _ := strconv.Atoi(jar[28:32])
-
-				register1 = binaryToDecimal(register1)
-				register2 = binaryToDecimal(register2)
-
-				s := fmt.Sprintf("%s\t%d\t%s\tR%d R%d", jar[0:11]+" "+jar[12:16]+" "+jar[17:22]+" "+jar[23:27]+" "+jar[28:32], Counter, Answer, register1, register2)
-
-				//adding new string and linebreak
-				result += s
-				result += "\n"
-				Holder = ""
-				jar = ""
-			}
-			if opcode >= 1672 && opcode <= 1673 {
-				Answer = "SUBI"
+				if opcode >= 1672 && opcode <= 1673 {
+					Answer = "SUBI"
+				}
 				register1, _ := strconv.Atoi(jar[23:27])
 				register2, _ := strconv.Atoi(jar[28:32])
 
