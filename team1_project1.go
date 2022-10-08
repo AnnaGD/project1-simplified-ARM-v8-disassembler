@@ -220,10 +220,7 @@ func getInstructionFormat(content string) string {
 		//handles break case
 		case true:
 			bitString := jar
-			fmt.Println("Hit bitString: ", bitString)
 			TwosCompDecimal, _ := strconv.ParseInt(string(bitString), 2, 64)
-			//TODO: if statement to handle neg nums, if [0] == 1, fmt.Println("-": decimal val after binary code)
-			fmt.Println("Hit 2's Comp dec: ", TwosCompDecimal)
 			s := fmt.Sprintf("%s %s %d", bitString, "\t", TwosCompDecimal)
 			result += s
 			result += "\n"
@@ -234,20 +231,7 @@ func getInstructionFormat(content string) string {
 	return result
 }
 
-// // TODO working through writeToFile
 func writeToFile(path string, info string) {
-	// TODO : for project 2
-	//f, error := os.OpenFile(path,
-	//	os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	//errorOpeningFile(error)
-	//defer f.Close()
-	//create a loop through each struct and call write string inside the loop
-	//for _, element := range instructionStructs {
-	//
-	//	info := formattedString(*element)
-	//	_, error := f.WriteString(info)
-	//	errorOpeningFile(error)
-	//}
 
 	os.WriteFile(path, []byte(info), 0666)
 
