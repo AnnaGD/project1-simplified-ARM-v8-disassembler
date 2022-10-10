@@ -88,7 +88,7 @@ func getInstructionFormat(content string) string {
 				opcode = binaryToDecimal(opcode)
 			}
 		}
-		fmt.Println("OpCode: ", opcode)
+		//fmt.Println("OpCode: ", opcode)
 
 		if opcode == 2038 {
 			Answer = checkForValue(opcode, ValidInstructions)
@@ -98,6 +98,7 @@ func getInstructionFormat(content string) string {
 			Holder = ""
 			jar = ""
 			Switcher = true
+			continue
 		}
 
 		switch Switcher {
@@ -219,9 +220,13 @@ func getInstructionFormat(content string) string {
 			Counter += 4
 		//handles break case
 		case true:
-			bitString := jar
-			TwosCompDecimal, _ := strconv.ParseInt(string(bitString), 2, 64)
-			s := fmt.Sprintf("%s %s %d", bitString, "\t", TwosCompDecimal)
+			TwosCompDecimal, _ := strconv.ParseInt(string(jar[1:]), 2, 64)
+			s := ""
+			if string(jar[0]) == "1" {
+				s = fmt.Sprintf("%s %s -%d", jar, "\t", TwosCompDecimal)
+			} else {
+				s = fmt.Sprintf("%s %s %d", jar, "\t", TwosCompDecimal)
+			}
 			result += s
 			result += "\n"
 			Holder = ""
