@@ -138,7 +138,6 @@ func getInstructionFormat(content string) string {
 			if opcode >= num1 && opcode <= num2 {
 				Answer = "B"
 				register1, _ := parse2Comp(jar[7:32])
-
 				s := fmt.Sprintf("%s \t%d\t%s\t#%d", jar[1:7]+" "+jar[7:32], Counter, Answer, register1)
 
 				//adding new string and linebreak
@@ -281,7 +280,6 @@ func getInstructionFormat(content string) string {
 		//handles break case
 		case true:
 			twos, _ := parse2Comp(jar)
-
 			s := ""
 			s = fmt.Sprintf("%s\t%d\t%d", jar, Counter, twos)
 			result += s
