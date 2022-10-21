@@ -120,7 +120,7 @@ func getInstructionFormat(content string) string {
 
 		if opcode == 2038 {
 			Answer = checkForValue(opcode, ValidInstructions)
-			s := fmt.Sprintf("%s\t%d\t%s", "1 11111 10110 11110 11111 11111 100111", Counter, "BREAK")
+			s := fmt.Sprintf("%s\t%d\t%s", "11111110 110 11110 11111 11111 00111", Counter, "BREAK")
 			result += s
 			result += "\n"
 			Holder = ""
@@ -138,7 +138,7 @@ func getInstructionFormat(content string) string {
 			if opcode >= num1 && opcode <= num2 {
 				Answer = "B"
 				register1, _ := parse2Comp(jar[7:32])
-				s := fmt.Sprintf("%s \t%d\t%s\t#%d", jar[1:7]+" "+jar[7:32], Counter, Answer, register1)
+				s := fmt.Sprintf("%s \t%d\t%s\t#%d", jar[0:7]+" "+jar[7:32], Counter, Answer, register1)
 
 				//adding new string and linebreak
 				result += s
@@ -154,8 +154,7 @@ func getInstructionFormat(content string) string {
 				}
 				register1, _ := strconv.Atoi(jar[27:32])
 				register1 = binaryToDecimal(register1)
-				register2, _ := strconv.Atoi(jar[8:27])
-				register2 = binaryToDecimal(register2)
+				register2, _ := parse2Comp(jar[8:27])
 				s := fmt.Sprintf("%s\t%d\t%s\tR%d, #%d", jar[0:8]+" "+jar[8:27]+" "+jar[27:32], Counter, Answer, register1, register2)
 
 				//adding new string and linebreak
@@ -193,13 +192,12 @@ func getInstructionFormat(content string) string {
 				}
 				register1, _ := strconv.Atoi(jar[27:32])
 				register2, _ := strconv.Atoi(jar[22:27])
-				register3, _ := strconv.Atoi(jar[11:22])
+				register3, _ := parse2Comp(jar[10:22])
 
 				register1 = binaryToDecimal(register1)
 				register2 = binaryToDecimal(register2)
-				register3 = binaryToDecimal(register3)
 
-				s := fmt.Sprintf("%s\t%d\t%s\tR%d, R%d, #%d", jar[1:11]+" "+jar[11:22]+" "+jar[22:27]+" "+jar[27:32], Counter, Answer, register1, register2, register3)
+				s := fmt.Sprintf("%s\t%d\t%s\tR%d, R%d, #%d", jar[0:10]+" "+jar[10:22]+" "+jar[22:27]+" "+jar[27:32], Counter, Answer, register1, register2, register3)
 
 				//adding new string and linebreak
 				result += s
@@ -218,7 +216,7 @@ func getInstructionFormat(content string) string {
 				register2 = binaryToDecimal(register2)
 				register3 = binaryToDecimal(register3)
 
-				s := fmt.Sprintf("%s\t%d\t%s\tR%d, [R%d, #%d]", jar[1:11]+" "+jar[11:20]+" "+jar[20:22]+" "+jar[22:27]+" "+jar[27:32], Counter, Answer, register1, register2, register3)
+				s := fmt.Sprintf("%s\t%d\t%s\tR%d, [R%d, #%d]", jar[0:11]+" "+jar[11:20]+" "+jar[20:22]+" "+jar[22:27]+" "+jar[27:32], Counter, Answer, register1, register2, register3)
 
 				//adding new string and linebreak
 				result += s
@@ -230,7 +228,7 @@ func getInstructionFormat(content string) string {
 			if opcode == 0 {
 				Answer = (checkForValue(opcode, ValidInstructions))
 
-				s := fmt.Sprintf("%s \t%d\t%s", jar[1:32], Counter, Answer)
+				s := fmt.Sprintf("%s \t%d\t%s", jar[0:8]+" "+jar[8:11]+" "+jar[11:16]+" "+jar[16:21]+" "+jar[21:26]+" "+jar[26:32], Counter, Answer)
 
 				//adding new string and linebreak
 				result += s
@@ -250,7 +248,7 @@ func getInstructionFormat(content string) string {
 				register2 = binaryToDecimal(register2)
 
 				//printing directly to file function takes %s "string" and &d digit value
-				s := fmt.Sprintf("%s %s %s %s %s \t%d\t%s\tR%d, R%d, #%d", jar[1:11], jar[11:16], jar[16:22], jar[22:27], jar[27:32], Counter, Answer, register1, register2, register3)
+				s := fmt.Sprintf("%s %s %s %s %s \t%d\t%s\tR%d, R%d, #%d", jar[0:11], jar[11:16], jar[16:22], jar[22:27], jar[27:32], Counter, Answer, register1, register2, register3)
 				//adding new string and linebreak
 				result += s
 				result += "\n"
@@ -269,7 +267,7 @@ func getInstructionFormat(content string) string {
 				register3 = binaryToDecimal(register3)
 
 				//printing directly to file function takes %s "string" and &d digit value
-				s := fmt.Sprintf("%s %s %s %s %s \t%d\t%s\tR%d, R%d, R%d", jar[1:11], jar[11:16], jar[16:22], jar[22:27], jar[27:32], Counter, Answer, register1, register2, register3)
+				s := fmt.Sprintf("%s %s %s %s %s \t%d\t%s\tR%d, R%d, R%d", jar[0:11], jar[11:16], jar[16:22], jar[22:27], jar[27:32], Counter, Answer, register1, register2, register3)
 				//adding new string and linebreak
 				result += s
 				result += "\n"
