@@ -7,6 +7,7 @@ import (
 	"math"
 	"os"
 	"strconv"
+	"strings"
 )
 
 // helper will streamline error checks below
@@ -37,6 +38,33 @@ func checkForValue(val int, instructions map[int]string) string {
 		}
 	}
 	return "cannot find valid instruction"
+}
+
+func parse2Comp(s string) (int64, error) {
+	sign := int64(1)
+	if strings.HasPrefix(s, "1") {
+		sign = -1
+		b := make([]byte, len(s))
+		for i := len(s) - 1; i >= 0; i-- {
+			d := s[i]
+			switch d {
+			case '0':
+				d = '1'
+			case '1':
+				d = '0'
+			}
+			b[i] = d
+		}
+		s = string(b)
+	}
+	i64, err := strconv.ParseInt(s, 2, 64)
+	if err != nil {
+		return 0, err
+	}
+	if sign <= -1 {
+		i64 = -i64 - 1
+	}
+	return i64, err
 }
 
 func getInstructionFormat(content string) string {
@@ -92,11 +120,12 @@ func getInstructionFormat(content string) string {
 
 		if opcode == 2038 {
 			Answer = checkForValue(opcode, ValidInstructions)
-			s := fmt.Sprintf("%s\t%s", "1 11111 10110 11110 11111 11111 100111", "BREAK")
+			s := fmt.Sprintf("%s\t%d\t%s", "11111110 110 11110 11111 11111 00111", Counter, "BREAK")
 			result += s
 			result += "\n"
 			Holder = ""
 			jar = ""
+			Counter += 4
 			Switcher = true
 			continue
 		}
@@ -108,7 +137,8 @@ func getInstructionFormat(content string) string {
 			var num2 = 191
 			if opcode >= num1 && opcode <= num2 {
 				Answer = "B"
-				s := fmt.Sprintf("%s\t%d\t%s", jar[0:6]+" "+jar[7:32], Counter, Answer)
+				register1, _ := parse2Comp(jar[7:32])
+				s := fmt.Sprintf("%s \t%d\t%s\t#%d", jar[0:7]+" "+jar[7:32], Counter, Answer, register1)
 
 				//adding new string and linebreak
 				result += s
@@ -122,7 +152,10 @@ func getInstructionFormat(content string) string {
 				if opcode >= 1448 && opcode <= 1455 {
 					Answer = "CBNZ"
 				}
-				s := fmt.Sprintf("%s\t%d\t%s", jar[0:11]+" "+jar[12:16]+" "+jar[17:22]+" "+jar[23:27]+" "+jar[28:32], Counter, Answer)
+				register1, _ := strconv.Atoi(jar[27:32])
+				register1 = binaryToDecimal(register1)
+				register2, _ := parse2Comp(jar[8:27])
+				s := fmt.Sprintf("%s\t%d\t%s\tR%d, #%d", jar[0:8]+" "+jar[8:27]+" "+jar[27:32], Counter, Answer, register1, register2)
 
 				//adding new string and linebreak
 				result += s
@@ -136,11 +169,14 @@ func getInstructionFormat(content string) string {
 				if opcode >= 1684 && opcode <= 1687 {
 					Answer = "MOVZ"
 				}
-				register1, _ := strconv.Atoi(jar[28:32])
-
+				register1, _ := strconv.Atoi(jar[27:32])
 				register1 = binaryToDecimal(register1)
+				register2, _ := strconv.Atoi(jar[11:27])
+				register2 = binaryToDecimal(register2)
+				register3, _ := strconv.Atoi(jar[9:11])
+				register3 = binaryToDecimal(register3) * 16
 
-				s := fmt.Sprintf("%s\t%d\t%s\tR%d", jar[0:11]+" "+jar[12:16]+" "+jar[17:22]+" "+jar[23:27]+" "+jar[28:32], Counter, Answer, +register1)
+				s := fmt.Sprintf("%s\t%d\t%s\tR%d, %d, LSL %d", jar[0:9]+" "+jar[9:11]+" "+jar[11:27]+" "+jar[27:32], Counter, Answer, register1, register2, register3)
 
 				//adding new string and linebreak
 				result += s
@@ -154,13 +190,14 @@ func getInstructionFormat(content string) string {
 				if opcode >= 1672 && opcode <= 1673 {
 					Answer = "SUBI"
 				}
-				register1, _ := strconv.Atoi(jar[23:27])
-				register2, _ := strconv.Atoi(jar[28:32])
+				register1, _ := strconv.Atoi(jar[27:32])
+				register2, _ := strconv.Atoi(jar[22:27])
+				register3, _ := parse2Comp(jar[10:22])
 
 				register1 = binaryToDecimal(register1)
 				register2 = binaryToDecimal(register2)
 
-				s := fmt.Sprintf("%s\t%d\t%s\tR%d R%d", jar[0:11]+" "+jar[12:16]+" "+jar[17:22]+" "+jar[23:27]+" "+jar[28:32], Counter, Answer, register1, register2)
+				s := fmt.Sprintf("%s\t%d\t%s\tR%d, R%d, #%d", jar[0:10]+" "+jar[10:22]+" "+jar[22:27]+" "+jar[27:32], Counter, Answer, register1, register2, register3)
 
 				//adding new string and linebreak
 				result += s
@@ -171,13 +208,15 @@ func getInstructionFormat(content string) string {
 			//D format response
 			if opcode == 1986 || opcode == 1984 {
 				Answer = (checkForValue(opcode, ValidInstructions))
-				register1, _ := strconv.Atoi(jar[23:27])
-				register2, _ := strconv.Atoi(jar[28:32])
+				register1, _ := strconv.Atoi(jar[27:32])
+				register2, _ := strconv.Atoi(jar[22:27])
+				register3, _ := strconv.Atoi(jar[11:20])
 
 				register1 = binaryToDecimal(register1)
 				register2 = binaryToDecimal(register2)
+				register3 = binaryToDecimal(register3)
 
-				s := fmt.Sprintf("%s\t%d\t%s\tR%d R%d", jar[0:11]+" "+jar[12:16]+" "+jar[17:22]+" "+jar[23:27]+" "+jar[28:32], Counter, Answer, register1, register2)
+				s := fmt.Sprintf("%s\t%d\t%s\tR%d, [R%d, #%d]", jar[0:11]+" "+jar[11:20]+" "+jar[20:22]+" "+jar[22:27]+" "+jar[27:32], Counter, Answer, register1, register2, register3)
 
 				//adding new string and linebreak
 				result += s
@@ -189,7 +228,7 @@ func getInstructionFormat(content string) string {
 			if opcode == 0 {
 				Answer = (checkForValue(opcode, ValidInstructions))
 
-				s := fmt.Sprintf("%s\t%d\t%s", jar[0:11]+" "+jar[12:16]+" "+jar[17:22]+" "+jar[23:27]+" "+jar[28:32], Counter, Answer)
+				s := fmt.Sprintf("%s \t%d\t%s", jar[0:8]+" "+jar[8:11]+" "+jar[11:16]+" "+jar[16:21]+" "+jar[21:26]+" "+jar[26:32], Counter, Answer)
 
 				//adding new string and linebreak
 				result += s
@@ -197,20 +236,38 @@ func getInstructionFormat(content string) string {
 				Holder = ""
 				jar = ""
 			}
-			//R format response
-			if opcode == 1104 || opcode == 1112 || opcode == 1360 || opcode == 1624 ||
-				opcode == 1690 || opcode == 1691 || opcode == 1692 || opcode == 1872 {
+			//LSL and LSR
+			if opcode == 1690 || opcode == 1691 {
 				Answer = (checkForValue(opcode, ValidInstructions))
-				register1, _ := strconv.Atoi(jar[23:27])
-				register2, _ := strconv.Atoi(jar[12:16])
-				register3, _ := strconv.Atoi(jar[28:32])
+
+				register1, _ := strconv.Atoi(jar[27:32])
+				register2, _ := strconv.Atoi(jar[22:27])
+				register3, _ := parse2Comp(jar[16:22])
+
+				register1 = binaryToDecimal(register1)
+				register2 = binaryToDecimal(register2)
+
+				//printing directly to file function takes %s "string" and &d digit value
+				s := fmt.Sprintf("%s %s %s %s %s \t%d\t%s\tR%d, R%d, #%d", jar[0:11], jar[11:16], jar[16:22], jar[22:27], jar[27:32], Counter, Answer, register1, register2, register3)
+				//adding new string and linebreak
+				result += s
+				result += "\n"
+				Holder = ""
+				jar = ""
+			}
+			//R format response
+			if opcode == 1104 || opcode == 1112 || opcode == 1360 || opcode == 1624 || opcode == 1692 || opcode == 1872 {
+				Answer = (checkForValue(opcode, ValidInstructions))
+				register1, _ := strconv.Atoi(jar[27:32])
+				register2, _ := strconv.Atoi(jar[22:27])
+				register3, _ := strconv.Atoi(jar[11:16])
 
 				register1 = binaryToDecimal(register1)
 				register2 = binaryToDecimal(register2)
 				register3 = binaryToDecimal(register3)
 
 				//printing directly to file function takes %s "string" and &d digit value
-				s := fmt.Sprintf("%s %s %s %s %s\t%d\t%s\tR%d R%d R%d", jar[0:11], jar[12:16], jar[17:22], jar[23:27], jar[28:32], Counter, Answer, register1, register2, register3)
+				s := fmt.Sprintf("%s %s %s %s %s \t%d\t%s\tR%d, R%d, R%d", jar[0:11], jar[11:16], jar[16:22], jar[22:27], jar[27:32], Counter, Answer, register1, register2, register3)
 				//adding new string and linebreak
 				result += s
 				result += "\n"
@@ -220,17 +277,14 @@ func getInstructionFormat(content string) string {
 			Counter += 4
 		//handles break case
 		case true:
-			TwosCompDecimal, _ := strconv.ParseInt(string(jar[1:]), 2, 64)
+			twos, _ := parse2Comp(jar)
 			s := ""
-			if string(jar[0]) == "1" {
-				s = fmt.Sprintf("%s %s -%d", jar, "\t", TwosCompDecimal)
-			} else {
-				s = fmt.Sprintf("%s %s %d", jar, "\t", TwosCompDecimal)
-			}
+			s = fmt.Sprintf("%s\t%d\t%d", jar, Counter, twos)
 			result += s
 			result += "\n"
 			Holder = ""
 			jar = ""
+			Counter += 4
 		}
 	}
 	return result
